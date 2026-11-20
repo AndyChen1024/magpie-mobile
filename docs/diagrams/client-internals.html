@@ -1,0 +1,101 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>用量查询的组件与调用 · Magpie Mobile</title>
+  <style>
+    * { box-sizing: border-box; }
+    body { margin: 0; min-height: 100vh; display: grid; place-items: center; background: #F4F4F6; }
+    main { width: min(100%, 1280px); min-width: 0; }
+    .diagram-container { width: 100%; overflow-x: auto; }
+    svg { display: block; width: 100%; min-width: 1280px; }
+    @media print {
+      .diagram-container { overflow-x: visible; }
+      svg { min-width: 0; }
+    }
+  </style>
+</head>
+<body>
+  <main aria-label="用量查询的组件与调用">
+    <div class="diagram-container">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 720" role="img" aria-labelledby="client-internals-title client-internals-desc">
+        <title id="client-internals-title">用量查询的组件与调用</title>
+        <desc id="client-internals-desc">Android 与 iOS 的用量入口把操作交给同一个 KMP 控制器类型，通过各自的凭据和传输适配器查询主机，并订阅独立的查询状态。</desc>
+        <defs>
+          <marker id="flow" markerWidth="6" markerHeight="6" refX="5" refY="3" orient="auto">
+            <path d="M 0 0 L 5 3 L 0 6 Z" fill="#55555F" />
+          </marker>
+          <marker id="query" markerWidth="6" markerHeight="6" refX="5" refY="3" orient="auto">
+            <path d="M 0 0 L 5 3 L 0 6 Z" fill="#4F46E5" />
+          </marker>
+        </defs>
+        <rect x="0" y="0" width="1280" height="720" fill="#F4F4F6" />
+        <text x="32" y="32" fill="#55555F" font-family="system-ui, -apple-system, &quot;PingFang SC&quot;, &quot;Microsoft YaHei&quot;, sans-serif" font-size="16" font-weight="600" text-anchor="start">Magpie Mobile</text>
+        <text x="30" y="82" fill="#1C1C21" font-family="&quot;Songti SC&quot;, &quot;Noto Serif CJK SC&quot;, &quot;STSong&quot;, serif" font-size="38" font-weight="600" text-anchor="start">用量查询的组件与调用</text>
+        <text x="32" y="114" fill="#55555F" font-family="system-ui, -apple-system, &quot;PingFang SC&quot;, &quot;Microsoft YaHei&quot;, sans-serif" font-size="17" font-weight="400" text-anchor="start">从应用入口到网关请求。左右两端各自持有控制器实例，中间一列是两端共用的代码。</text>
+        <rect x="32" y="140" width="360" height="412" fill="#FAFAFB" rx="8" stroke="#D4D4DB" stroke-width="1" />
+        <text x="48" y="171" fill="#1C1C21" font-family="system-ui, -apple-system, &quot;PingFang SC&quot;, &quot;Microsoft YaHei&quot;, sans-serif" font-size="21" font-weight="600" text-anchor="start">Android · :app</text>
+        <text x="48" y="194" fill="#55555F" font-family="system-ui, -apple-system, &quot;PingFang SC&quot;, &quot;Microsoft YaHei&quot;, sans-serif" font-size="15" font-weight="400" text-anchor="start">magpie-android/</text>
+        <rect x="448" y="140" width="384" height="412" fill="#FAFAFB" rx="8" stroke="#D4D4DB" stroke-width="1" />
+        <text x="464" y="171" fill="#1C1C21" font-family="system-ui, -apple-system, &quot;PingFang SC&quot;, &quot;Microsoft YaHei&quot;, sans-serif" font-size="21" font-weight="600" text-anchor="start">KMP · :shared</text>
+        <text x="464" y="194" fill="#55555F" font-family="system-ui, -apple-system, &quot;PingFang SC&quot;, &quot;Microsoft YaHei&quot;, sans-serif" font-size="15" font-weight="400" text-anchor="start">shared/src/commonMain/</text>
+        <rect x="888" y="140" width="360" height="412" fill="#FAFAFB" rx="8" stroke="#D4D4DB" stroke-width="1" />
+        <text x="904" y="171" fill="#1C1C21" font-family="system-ui, -apple-system, &quot;PingFang SC&quot;, &quot;Microsoft YaHei&quot;, sans-serif" font-size="21" font-weight="600" text-anchor="start">iOS · SwiftUI 应用</text>
+        <text x="904" y="194" fill="#55555F" font-family="system-ui, -apple-system, &quot;PingFang SC&quot;, &quot;Microsoft YaHei&quot;, sans-serif" font-size="15" font-weight="400" text-anchor="start">magpie-ios/ · 独立分支集成中</text>
+        <path d="M 210 274 V 303" fill="none" stroke="#4F46E5" stroke-width="2" marker-end="url(#query)" />
+        <path d="M 1070 274 V 303" fill="none" stroke="#4F46E5" stroke-width="2" marker-end="url(#query)" />
+        <path d="M 632 303 V 274" fill="none" stroke="#55555F" stroke-width="2" marker-end="url(#flow)" stroke-dasharray="5 5" />
+        <path d="M 376 333 H 464" fill="none" stroke="#4F46E5" stroke-width="2" marker-end="url(#query)" />
+        <path d="M 464 364 H 376" fill="none" stroke="#55555F" stroke-width="2" marker-end="url(#flow)" stroke-dasharray="5 5" />
+        <path d="M 904 333 H 816" fill="none" stroke="#4F46E5" stroke-width="2" marker-end="url(#query)" />
+        <path d="M 816 364 H 904" fill="none" stroke="#55555F" stroke-width="2" marker-end="url(#flow)" stroke-dasharray="5 5" />
+        <path d="M 640 389 V 424" fill="none" stroke="#4F46E5" stroke-width="2" marker-end="url(#query)" />
+        <path d="M 464 475 H 376" fill="none" stroke="#4F46E5" stroke-width="2" marker-end="url(#query)" />
+        <path d="M 816 475 H 904" fill="none" stroke="#4F46E5" stroke-width="2" marker-end="url(#query)" />
+        <path d="M 212 532 V 581" fill="none" stroke="#4F46E5" stroke-width="2" marker-end="url(#query)" />
+        <path d="M 1068 532 V 581" fill="none" stroke="#4F46E5" stroke-width="2" marker-end="url(#query)" />
+        <rect x="48" y="208" width="328" height="66" fill="#FFFFFF" rx="8" stroke="#85858D" stroke-width="1" />
+        <text x="64" y="236" fill="#1C1C21" font-family="system-ui, -apple-system, &quot;PingFang SC&quot;, &quot;Microsoft YaHei&quot;, sans-serif" font-size="20" font-weight="600" text-anchor="start">MainActivity → MagpieApp</text>
+        <text x="64" y="261" fill="#55555F" font-family="system-ui, -apple-system, &quot;PingFang SC&quot;, &quot;Microsoft YaHei&quot;, sans-serif" font-size="15" font-weight="400" text-anchor="start">底栏和设置决定当前页面</text>
+        <rect x="464" y="208" width="352" height="66" fill="#FFFFFF" rx="8" stroke="#85858D" stroke-width="1" />
+        <text x="480" y="236" fill="#1C1C21" font-family="system-ui, -apple-system, &quot;PingFang SC&quot;, &quot;Microsoft YaHei&quot;, sans-serif" font-size="20" font-weight="600" text-anchor="start">UsageState</text>
+        <text x="480" y="261" fill="#55555F" font-family="system-ui, -apple-system, &quot;PingFang SC&quot;, &quot;Microsoft YaHei&quot;, sans-serif" font-size="15" font-weight="400" text-anchor="start">概览与请求表分别维护加载、结果和错误</text>
+        <rect x="904" y="208" width="328" height="66" fill="#FFFFFF" rx="8" stroke="#85858D" stroke-width="1" />
+        <text x="920" y="236" fill="#1C1C21" font-family="system-ui, -apple-system, &quot;PingFang SC&quot;, &quot;Microsoft YaHei&quot;, sans-serif" font-size="20" font-weight="600" text-anchor="start">ContentView</text>
+        <text x="920" y="261" fill="#55555F" font-family="system-ui, -apple-system, &quot;PingFang SC&quot;, &quot;Microsoft YaHei&quot;, sans-serif" font-size="15" font-weight="400" text-anchor="start">MagpieWorkspace 切换到 UsagePage</text>
+        <rect x="48" y="303" width="328" height="86" fill="#FFFFFF" rx="8" stroke="#85858D" stroke-width="1" />
+        <text x="64" y="331" fill="#1C1C21" font-family="system-ui, -apple-system, &quot;PingFang SC&quot;, &quot;Microsoft YaHei&quot;, sans-serif" font-size="20" font-weight="600" text-anchor="start">LanUsageRoute</text>
+        <text x="64" y="356" fill="#55555F" font-family="system-ui, -apple-system, &quot;PingFang SC&quot;, &quot;Microsoft YaHei&quot;, sans-serif" font-size="15" font-weight="400" text-anchor="start">LanUsagePage 展示状态与操作</text>
+        <text x="64" y="378" fill="#55555F" font-family="system-ui, -apple-system, &quot;PingFang SC&quot;, &quot;Microsoft YaHei&quot;, sans-serif" font-size="15" font-weight="400" text-anchor="start">LanUsageViewModel 订阅并转发操作</text>
+        <rect x="464" y="303" width="352" height="86" fill="#EEEDFD" rx="8" stroke="#4F46E5" stroke-width="1.5" />
+        <text x="480" y="331" fill="#1C1C21" font-family="system-ui, -apple-system, &quot;PingFang SC&quot;, &quot;Microsoft YaHei&quot;, sans-serif" font-size="20" font-weight="600" text-anchor="start">UsageController</text>
+        <text x="480" y="356" fill="#55555F" font-family="system-ui, -apple-system, &quot;PingFang SC&quot;, &quot;Microsoft YaHei&quot;, sans-serif" font-size="15" font-weight="400" text-anchor="start">选择主机、时段或页签后调度查询</text>
+        <text x="480" y="378" fill="#55555F" font-family="system-ui, -apple-system, &quot;PingFang SC&quot;, &quot;Microsoft YaHei&quot;, sans-serif" font-size="15" font-weight="400" text-anchor="start">UsageProtocol.kt 解析汇总和分页结果</text>
+        <rect x="904" y="303" width="328" height="86" fill="#FFFFFF" rx="8" stroke="#85858D" stroke-width="1" />
+        <text x="920" y="331" fill="#1C1C21" font-family="system-ui, -apple-system, &quot;PingFang SC&quot;, &quot;Microsoft YaHei&quot;, sans-serif" font-size="20" font-weight="600" text-anchor="start">UsagePage → UsageWorkspace</text>
+        <text x="920" y="356" fill="#55555F" font-family="system-ui, -apple-system, &quot;PingFang SC&quot;, &quot;Microsoft YaHei&quot;, sans-serif" font-size="15" font-weight="400" text-anchor="start">SharedUsageSession 桥接 Swift 与 KMP</text>
+        <text x="920" y="378" fill="#55555F" font-family="system-ui, -apple-system, &quot;PingFang SC&quot;, &quot;Microsoft YaHei&quot;, sans-serif" font-size="15" font-weight="400" text-anchor="start">将 UsageState 转为 Swift 快照</text>
+        <rect x="464" y="424" width="352" height="108" fill="#FFFFFF" rx="8" stroke="#85858D" stroke-width="1" />
+        <text x="480" y="452" fill="#1C1C21" font-family="system-ui, -apple-system, &quot;PingFang SC&quot;, &quot;Microsoft YaHei&quot;, sans-serif" font-size="20" font-weight="600" text-anchor="start">平台接口</text>
+        <text x="480" y="477" fill="#55555F" font-family="system-ui, -apple-system, &quot;PingFang SC&quot;, &quot;Microsoft YaHei&quot;, sans-serif" font-size="15" font-weight="400" text-anchor="start">UsageCredentials.read(origin)</text>
+        <text x="480" y="499" fill="#55555F" font-family="system-ui, -apple-system, &quot;PingFang SC&quot;, &quot;Microsoft YaHei&quot;, sans-serif" font-size="15" font-weight="400" text-anchor="start">UsageTransport.get(request)</text>
+        <rect x="48" y="424" width="328" height="108" fill="#FFFFFF" rx="8" stroke="#85858D" stroke-width="1" />
+        <text x="64" y="452" fill="#1C1C21" font-family="system-ui, -apple-system, &quot;PingFang SC&quot;, &quot;Microsoft YaHei&quot;, sans-serif" font-size="20" font-weight="600" text-anchor="start">Android 平台实现</text>
+        <text x="64" y="477" fill="#55555F" font-family="system-ui, -apple-system, &quot;PingFang SC&quot;, &quot;Microsoft YaHei&quot;, sans-serif" font-size="15" font-weight="400" text-anchor="start">UsageConnectionStore · 凭据加密保存</text>
+        <text x="64" y="499" fill="#55555F" font-family="system-ui, -apple-system, &quot;PingFang SC&quot;, &quot;Microsoft YaHei&quot;, sans-serif" font-size="15" font-weight="400" text-anchor="start">AndroidUsageTransport · HTTPS</text>
+        <rect x="904" y="424" width="328" height="108" fill="#FFFFFF" rx="8" stroke="#85858D" stroke-width="1" />
+        <text x="920" y="452" fill="#1C1C21" font-family="system-ui, -apple-system, &quot;PingFang SC&quot;, &quot;Microsoft YaHei&quot;, sans-serif" font-size="20" font-weight="600" text-anchor="start">iOS 平台实现</text>
+        <text x="920" y="477" fill="#55555F" font-family="system-ui, -apple-system, &quot;PingFang SC&quot;, &quot;Microsoft YaHei&quot;, sans-serif" font-size="15" font-weight="400" text-anchor="start">UsageKeychain · Keychain 存储</text>
+        <text x="920" y="499" fill="#55555F" font-family="system-ui, -apple-system, &quot;PingFang SC&quot;, &quot;Microsoft YaHei&quot;, sans-serif" font-size="15" font-weight="400" text-anchor="start">SharedUsageTransport → URLSession</text>
+        <rect x="32" y="581" width="1216" height="76" fill="#FFFFFF" rx="8" stroke="#85858D" stroke-width="1" />
+        <text x="52" y="611" fill="#1C1C21" font-family="system-ui, -apple-system, &quot;PingFang SC&quot;, &quot;Microsoft YaHei&quot;, sans-serif" font-size="21" font-weight="600" text-anchor="start">主机 · Magpie 网关</text>
+        <text x="52" y="638" fill="#55555F" font-family="system-ui, -apple-system, &quot;PingFang SC&quot;, &quot;Microsoft YaHei&quot;, sans-serif" font-size="15" font-weight="400" text-anchor="start">按密钥授权返回统计或请求记录</text>
+        <text x="430" y="610" fill="#1C1C21" font-family="ui-monospace, SFMono-Regular, Consolas, &quot;PingFang SC&quot;, monospace" font-size="17" font-weight="500" text-anchor="start">GET /v1/magpie/usage?period=7d</text>
+        <text x="430" y="637" fill="#1C1C21" font-family="ui-monospace, SFMono-Regular, Consolas, &quot;PingFang SC&quot;, monospace" font-size="17" font-weight="500" text-anchor="start">GET /v1/magpie/usage/requests?period=7d&amp;offset=0&amp;limit=50</text>
+        <text x="32" y="692" fill="#55555F" font-family="system-ui, -apple-system, &quot;PingFang SC&quot;, &quot;Microsoft YaHei&quot;, sans-serif" font-size="17" font-weight="400" text-anchor="start">实线沿调用方向，虚线表示状态更新。Android 以 Gradle 模块依赖共享层，iOS 通过 MagpieShared.xcframework 导入。</text>
+      </svg>
+    </div>
+  </main>
+</body>
+</html>

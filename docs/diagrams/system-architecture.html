@@ -1,0 +1,83 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>移动端总体架构 · Magpie Mobile</title>
+  <style>
+    * { box-sizing: border-box; }
+    body { margin: 0; min-height: 100vh; display: grid; place-items: center; background: #F4F4F6; }
+    main { width: min(100%, 1120px); min-width: 0; }
+    .diagram-container { width: 100%; overflow-x: auto; }
+    svg { display: block; width: 100%; min-width: 960px; }
+    @media print {
+      .diagram-container { overflow-x: visible; }
+      svg { min-width: 0; }
+    }
+  </style>
+</head>
+<body>
+  <main aria-label="移动端总体架构">
+    <div class="diagram-container">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 600" role="img" aria-labelledby="system-architecture-title system-architecture-desc">
+        <title id="system-architecture-title">移动端总体架构</title>
+        <desc id="system-architecture-desc">手机直接查询 Magpie 网关用量，规划中的远程会话经公网中继连接主机伴随服务，由主机上的 Agent 执行任务。</desc>
+        <defs>
+          <marker id="flow" markerWidth="6" markerHeight="6" refX="5" refY="3" orient="auto">
+            <path d="M 0 0 L 5 3 L 0 6 Z" fill="#55555F" />
+          </marker>
+          <marker id="query" markerWidth="6" markerHeight="6" refX="5" refY="3" orient="auto">
+            <path d="M 0 0 L 5 3 L 0 6 Z" fill="#4F46E5" />
+          </marker>
+        </defs>
+        <rect x="0" y="0" width="960" height="600" fill="#F4F4F6" />
+        <text x="32" y="32" fill="#55555F" font-family="system-ui, -apple-system, &quot;PingFang SC&quot;, &quot;Microsoft YaHei&quot;, sans-serif" font-size="16" font-weight="600" text-anchor="start">Magpie Mobile</text>
+        <text x="30" y="82" fill="#1C1C21" font-family="&quot;Songti SC&quot;, &quot;Noto Serif CJK SC&quot;, &quot;STSong&quot;, serif" font-size="38" font-weight="600" text-anchor="start">移动端总体架构</text>
+        <text x="32" y="114" fill="#55555F" font-family="system-ui, -apple-system, &quot;PingFang SC&quot;, &quot;Microsoft YaHei&quot;, sans-serif" font-size="17" font-weight="400" text-anchor="start">用量查询直连局域网网关。按远程续聊设计，任务由用户主机上的 Agent 执行。</text>
+        <rect x="32" y="144" width="244" height="356" fill="#FBFBFC" rx="8" stroke="#D4D4DB" stroke-width="1" />
+        <text x="48" y="176" fill="#55555F" font-family="system-ui, -apple-system, &quot;PingFang SC&quot;, &quot;Microsoft YaHei&quot;, sans-serif" font-size="17" font-weight="600" text-anchor="start">手机端</text>
+        <rect x="652" y="144" width="276" height="356" fill="#FBFBFC" rx="8" stroke="#D4D4DB" stroke-width="1" />
+        <text x="668" y="176" fill="#55555F" font-family="system-ui, -apple-system, &quot;PingFang SC&quot;, &quot;Microsoft YaHei&quot;, sans-serif" font-size="17" font-weight="600" text-anchor="start">用户主机</text>
+        <path d="M 260 240 H 668" fill="none" stroke="#4F46E5" stroke-width="2" marker-end="url(#query)" />
+        <path d="M 668 256 H 610 Q 602 256 602 264 V 336 Q 602 344 594 344 H 560" fill="none" stroke="#55555F" stroke-width="2" marker-end="url(#flow)" />
+        <path d="M 260 448 H 348" fill="none" stroke="#55555F" stroke-width="2" marker-end="url(#flow)" stroke-dasharray="5 5" />
+        <path d="M 560 448 H 668" fill="none" stroke="#55555F" stroke-width="2" marker-end="url(#flow)" stroke-dasharray="5 5" />
+        <path d="M 792 412 V 376" fill="none" stroke="#55555F" stroke-width="2" marker-end="url(#flow)" stroke-dasharray="5 5" />
+        <path d="M 792 308 V 280" fill="none" stroke="#55555F" stroke-width="2" marker-end="url(#flow)" stroke-dasharray="5 5" />
+        <text x="464" y="222" fill="#4F46E5" font-family="system-ui, -apple-system, &quot;PingFang SC&quot;, &quot;Microsoft YaHei&quot;, sans-serif" font-size="18" font-weight="600" text-anchor="middle">局域网 HTTPS</text>
+        <text x="464" y="268" fill="#55555F" font-family="system-ui, -apple-system, &quot;PingFang SC&quot;, &quot;Microsoft YaHei&quot;, sans-serif" font-size="15" font-weight="400" text-anchor="middle">用量概览与请求明细</text>
+        <rect x="48" y="200" width="212" height="80" fill="#FFFFFF" rx="8" stroke="#85858D" stroke-width="1" />
+        <text x="64" y="229" fill="#1C1C21" font-family="system-ui, -apple-system, &quot;PingFang SC&quot;, &quot;Microsoft YaHei&quot;, sans-serif" font-size="20" font-weight="600" text-anchor="start">用量页</text>
+        <text x="64" y="254" fill="#55555F" font-family="system-ui, -apple-system, &quot;PingFang SC&quot;, &quot;Microsoft YaHei&quot;, sans-serif" font-size="15" font-weight="400" text-anchor="start">原生界面 · KMP 查询</text>
+        <rect x="668" y="200" width="244" height="80" fill="#EEEDFD" rx="8" stroke="#4F46E5" stroke-width="1.6" />
+        <text x="684" y="229" fill="#1C1C21" font-family="system-ui, -apple-system, &quot;PingFang SC&quot;, &quot;Microsoft YaHei&quot;, sans-serif" font-size="20" font-weight="600" text-anchor="start">Magpie 网关</text>
+        <text x="684" y="254" fill="#55555F" font-family="system-ui, -apple-system, &quot;PingFang SC&quot;, &quot;Microsoft YaHei&quot;, sans-serif" font-size="15" font-weight="400" text-anchor="start">用量统计 · 模型路由</text>
+        <rect x="348" y="308" width="212" height="68" fill="#FFFFFF" rx="8" stroke="#85858D" stroke-width="1" />
+        <text x="364" y="337" fill="#1C1C21" font-family="system-ui, -apple-system, &quot;PingFang SC&quot;, &quot;Microsoft YaHei&quot;, sans-serif" font-size="20" font-weight="600" text-anchor="start">模型提供方</text>
+        <text x="364" y="362" fill="#55555F" font-family="system-ui, -apple-system, &quot;PingFang SC&quot;, &quot;Microsoft YaHei&quot;, sans-serif" font-size="15" font-weight="400" text-anchor="start">处理网关转发的模型请求</text>
+        <rect x="668" y="308" width="244" height="68" fill="#FFFFFF" rx="8" stroke="#85858D" stroke-width="1" />
+        <text x="684" y="337" fill="#1C1C21" font-family="system-ui, -apple-system, &quot;PingFang SC&quot;, &quot;Microsoft YaHei&quot;, sans-serif" font-size="20" font-weight="600" text-anchor="start">主机上的 Agent</text>
+        <text x="684" y="362" fill="#55555F" font-family="system-ui, -apple-system, &quot;PingFang SC&quot;, &quot;Microsoft YaHei&quot;, sans-serif" font-size="15" font-weight="400" text-anchor="start">恢复原会话 · 执行任务</text>
+        <text x="48" y="396" fill="#55555F" font-family="system-ui, -apple-system, &quot;PingFang SC&quot;, &quot;Microsoft YaHei&quot;, sans-serif" font-size="15" font-weight="600" text-anchor="start">远程会话 · 规划</text>
+        <rect x="48" y="412" width="212" height="72" fill="#FFFFFF" rx="8" stroke="#85858D" stroke-width="1" />
+        <text x="64" y="441" fill="#1C1C21" font-family="system-ui, -apple-system, &quot;PingFang SC&quot;, &quot;Microsoft YaHei&quot;, sans-serif" font-size="20" font-weight="600" text-anchor="start">会话与中继客户端</text>
+        <text x="64" y="466" fill="#55555F" font-family="system-ui, -apple-system, &quot;PingFang SC&quot;, &quot;Microsoft YaHei&quot;, sans-serif" font-size="15" font-weight="400" text-anchor="start">配对 · 追问 · 处理审批</text>
+        <rect x="348" y="412" width="212" height="72" fill="#FFFFFF" rx="8" stroke="#85858D" stroke-width="1" />
+        <text x="364" y="441" fill="#1C1C21" font-family="system-ui, -apple-system, &quot;PingFang SC&quot;, &quot;Microsoft YaHei&quot;, sans-serif" font-size="20" font-weight="600" text-anchor="start">公网中继</text>
+        <text x="364" y="466" fill="#55555F" font-family="system-ui, -apple-system, &quot;PingFang SC&quot;, &quot;Microsoft YaHei&quot;, sans-serif" font-size="15" font-weight="400" text-anchor="start">转发端到端加密消息</text>
+        <rect x="668" y="412" width="244" height="72" fill="#FFFFFF" rx="8" stroke="#85858D" stroke-width="1" />
+        <text x="684" y="441" fill="#1C1C21" font-family="system-ui, -apple-system, &quot;PingFang SC&quot;, &quot;Microsoft YaHei&quot;, sans-serif" font-size="20" font-weight="600" text-anchor="start">主机伴随服务</text>
+        <text x="684" y="466" fill="#55555F" font-family="system-ui, -apple-system, &quot;PingFang SC&quot;, &quot;Microsoft YaHei&quot;, sans-serif" font-size="15" font-weight="400" text-anchor="start">驱动 Agent · 返回事件</text>
+        <rect x="32" y="520" width="896" height="1" fill="#D4D4DB" />
+        <path d="M 32 546 h 32" fill="none" stroke="#4F46E5" stroke-width="2" />
+        <text x="76" y="551" fill="#55555F" font-family="system-ui, -apple-system, &quot;PingFang SC&quot;, &quot;Microsoft YaHei&quot;, sans-serif" font-size="15" font-weight="400" text-anchor="start">局域网用量</text>
+        <path d="M 218 546 h 32" fill="none" stroke="#55555F" stroke-width="2" />
+        <text x="262" y="551" fill="#55555F" font-family="system-ui, -apple-system, &quot;PingFang SC&quot;, &quot;Microsoft YaHei&quot;, sans-serif" font-size="15" font-weight="400" text-anchor="start">主机模型调用</text>
+        <path d="M 420 546 h 32" fill="none" stroke="#55555F" stroke-width="2" stroke-dasharray="5 5" />
+        <text x="464" y="551" fill="#55555F" font-family="system-ui, -apple-system, &quot;PingFang SC&quot;, &quot;Microsoft YaHei&quot;, sans-serif" font-size="15" font-weight="400" text-anchor="start">远程会话规划</text>
+        <text x="32" y="581" fill="#55555F" font-family="system-ui, -apple-system, &quot;PingFang SC&quot;, &quot;Microsoft YaHei&quot;, sans-serif" font-size="15" font-weight="400" text-anchor="start">Android 已接入局域网用量，iOS 在独立分支集成。箭头沿请求方向，响应与事件沿链路返回。</text>
+      </svg>
+    </div>
+  </main>
+</body>
+</html>

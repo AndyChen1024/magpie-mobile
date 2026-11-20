@@ -1,0 +1,120 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>手机页面排布 · Magpie Mobile</title>
+  <style>
+    * { box-sizing: border-box; }
+    body { margin: 0; min-height: 100vh; display: grid; place-items: center; background: #F4F4F6; }
+    main { width: min(100%, 1280px); min-width: 0; }
+    .diagram-container { width: 100%; overflow-x: auto; }
+    svg { display: block; width: 100%; min-width: 1280px; }
+    @media print {
+      .diagram-container { overflow-x: visible; }
+      svg { min-width: 0; }
+    }
+  </style>
+</head>
+<body>
+  <main aria-label="手机页面排布">
+    <div class="diagram-container">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 720" role="img" aria-labelledby="mobile-ui-layout-title mobile-ui-layout-desc">
+        <title id="mobile-ui-layout-title">手机页面排布</title>
+        <desc id="mobile-ui-layout-desc">三个线框展示 Agent 首页、锚在底栏上方的更多菜单，以及当前原生用量页的主机、筛选、请求列表和详情入口。</desc>
+        <defs>
+          <marker id="flow" markerWidth="6" markerHeight="6" refX="5" refY="3" orient="auto">
+            <path d="M 0 0 L 5 3 L 0 6 Z" fill="#55555F" />
+          </marker>
+          <marker id="query" markerWidth="6" markerHeight="6" refX="5" refY="3" orient="auto">
+            <path d="M 0 0 L 5 3 L 0 6 Z" fill="#4F46E5" />
+          </marker>
+        </defs>
+        <rect x="0" y="0" width="1280" height="720" fill="#F4F4F6" />
+        <text x="32" y="32" fill="#55555F" font-family="system-ui, -apple-system, &quot;PingFang SC&quot;, &quot;Microsoft YaHei&quot;, sans-serif" font-size="16" font-weight="600" text-anchor="start">Magpie Mobile</text>
+        <text x="30" y="82" fill="#1C1C21" font-family="&quot;Songti SC&quot;, &quot;Noto Serif CJK SC&quot;, &quot;STSong&quot;, serif" font-size="38" font-weight="600" text-anchor="start">手机页面排布</text>
+        <text x="32" y="114" fill="#55555F" font-family="system-ui, -apple-system, &quot;PingFang SC&quot;, &quot;Microsoft YaHei&quot;, sans-serif" font-size="17" font-weight="400" text-anchor="start">以 Magpie 手机网页的导航为基线。图中的行用于说明位置，点击区域与弹层由两端原生实现。</text>
+        <text x="32" y="162" fill="#1C1C21" font-family="system-ui, -apple-system, &quot;PingFang SC&quot;, &quot;Microsoft YaHei&quot;, sans-serif" font-size="22" font-weight="600" text-anchor="start">默认入口 · Agent</text>
+        <text x="32" y="188" fill="#55555F" font-family="system-ui, -apple-system, &quot;PingFang SC&quot;, &quot;Microsoft YaHei&quot;, sans-serif" font-size="15" font-weight="400" text-anchor="start">首屏展示示例配置，顶栏的设置属于全局。</text>
+        <text x="460" y="162" fill="#1C1C21" font-family="system-ui, -apple-system, &quot;PingFang SC&quot;, &quot;Microsoft YaHei&quot;, sans-serif" font-size="22" font-weight="600" text-anchor="start">从底栏展开「更多」</text>
+        <text x="460" y="188" fill="#55555F" font-family="system-ui, -apple-system, &quot;PingFang SC&quot;, &quot;Microsoft YaHei&quot;, sans-serif" font-size="15" font-weight="400" text-anchor="start">菜单锚在右下方，选择条目后收起。</text>
+        <text x="888" y="162" fill="#1C1C21" font-family="system-ui, -apple-system, &quot;PingFang SC&quot;, &quot;Microsoft YaHei&quot;, sans-serif" font-size="22" font-weight="600" text-anchor="start">进入「用量 → 请求」</text>
+        <text x="888" y="188" fill="#55555F" font-family="system-ui, -apple-system, &quot;PingFang SC&quot;, &quot;Microsoft YaHei&quot;, sans-serif" font-size="15" font-weight="400" text-anchor="start">当前主机和时段决定下面整列请求。</text>
+        <rect x="32" y="204" width="360" height="424" fill="#FAFAFB" rx="10" stroke="#85858D" stroke-width="1" />
+        <text x="48" y="238" fill="#1C1C21" font-family="system-ui, -apple-system, &quot;PingFang SC&quot;, &quot;Microsoft YaHei&quot;, sans-serif" font-size="21" font-weight="600" text-anchor="start">magpie</text>
+        <text x="260" y="237" fill="#55555F" font-family="system-ui, -apple-system, &quot;PingFang SC&quot;, &quot;Microsoft YaHei&quot;, sans-serif" font-size="14" font-weight="400" text-anchor="end">演示数据</text>
+        <text x="376" y="237" fill="#55555F" font-family="system-ui, -apple-system, &quot;PingFang SC&quot;, &quot;Microsoft YaHei&quot;, sans-serif" font-size="15" font-weight="500" text-anchor="end">设置</text>
+        <rect x="32" y="254" width="360" height="1" fill="#D4D4DB" />
+        <rect x="32" y="576" width="360" height="1" fill="#D4D4DB" />
+        <rect x="54" y="579" width="28" height="3" fill="#4F46E5" rx="1" />
+        <text x="68" y="609" fill="#4F46E5" font-family="system-ui, -apple-system, &quot;PingFang SC&quot;, &quot;Microsoft YaHei&quot;, sans-serif" font-size="15" font-weight="600" text-anchor="middle">Agent</text>
+        <text x="140" y="609" fill="#55555F" font-family="system-ui, -apple-system, &quot;PingFang SC&quot;, &quot;Microsoft YaHei&quot;, sans-serif" font-size="15" font-weight="400" text-anchor="middle">会话</text>
+        <text x="212" y="609" fill="#55555F" font-family="system-ui, -apple-system, &quot;PingFang SC&quot;, &quot;Microsoft YaHei&quot;, sans-serif" font-size="15" font-weight="400" text-anchor="middle">资源库</text>
+        <text x="284" y="609" fill="#55555F" font-family="system-ui, -apple-system, &quot;PingFang SC&quot;, &quot;Microsoft YaHei&quot;, sans-serif" font-size="15" font-weight="400" text-anchor="middle">供应商</text>
+        <text x="356" y="609" fill="#55555F" font-family="system-ui, -apple-system, &quot;PingFang SC&quot;, &quot;Microsoft YaHei&quot;, sans-serif" font-size="15" font-weight="400" text-anchor="middle">更多</text>
+        <text x="48" y="285" fill="#1C1C21" font-family="system-ui, -apple-system, &quot;PingFang SC&quot;, &quot;Microsoft YaHei&quot;, sans-serif" font-size="18" font-weight="600" text-anchor="start">Agent 接入与模型</text>
+        <rect x="48" y="303" width="328" height="65" fill="#FFFFFF" rx="8" stroke="#D4D4DB" stroke-width="1" />
+        <text x="62" y="329" fill="#1C1C21" font-family="system-ui, -apple-system, &quot;PingFang SC&quot;, &quot;Microsoft YaHei&quot;, sans-serif" font-size="18" font-weight="600" text-anchor="start">Claude Code</text>
+        <text x="62" y="352" fill="#55555F" font-family="system-ui, -apple-system, &quot;PingFang SC&quot;, &quot;Microsoft YaHei&quot;, sans-serif" font-size="14" font-weight="400" text-anchor="start">接入状态　·　模型选择　·　详情</text>
+        <rect x="48" y="378" width="328" height="65" fill="#FFFFFF" rx="8" stroke="#D4D4DB" stroke-width="1" />
+        <text x="62" y="404" fill="#1C1C21" font-family="system-ui, -apple-system, &quot;PingFang SC&quot;, &quot;Microsoft YaHei&quot;, sans-serif" font-size="18" font-weight="600" text-anchor="start">Codex</text>
+        <text x="62" y="427" fill="#55555F" font-family="system-ui, -apple-system, &quot;PingFang SC&quot;, &quot;Microsoft YaHei&quot;, sans-serif" font-size="14" font-weight="400" text-anchor="start">接入状态　·　模型选择　·　详情</text>
+        <text x="49" y="485" fill="#1C1C21" font-family="system-ui, -apple-system, &quot;PingFang SC&quot;, &quot;Microsoft YaHei&quot;, sans-serif" font-size="17" font-weight="600" text-anchor="start">方案</text>
+        <text x="49" y="514" fill="#55555F" font-family="system-ui, -apple-system, &quot;PingFang SC&quot;, &quot;Microsoft YaHei&quot;, sans-serif" font-size="15" font-weight="400" text-anchor="start">保存当前选择，或恢复已有方案</text>
+        <rect x="460" y="204" width="360" height="424" fill="#FAFAFB" rx="10" stroke="#85858D" stroke-width="1" />
+        <text x="476" y="238" fill="#1C1C21" font-family="system-ui, -apple-system, &quot;PingFang SC&quot;, &quot;Microsoft YaHei&quot;, sans-serif" font-size="21" font-weight="600" text-anchor="start">magpie</text>
+        <text x="688" y="237" fill="#55555F" font-family="system-ui, -apple-system, &quot;PingFang SC&quot;, &quot;Microsoft YaHei&quot;, sans-serif" font-size="14" font-weight="400" text-anchor="end">演示数据</text>
+        <text x="804" y="237" fill="#55555F" font-family="system-ui, -apple-system, &quot;PingFang SC&quot;, &quot;Microsoft YaHei&quot;, sans-serif" font-size="15" font-weight="500" text-anchor="end">设置</text>
+        <rect x="460" y="254" width="360" height="1" fill="#D4D4DB" />
+        <rect x="460" y="576" width="360" height="1" fill="#D4D4DB" />
+        <text x="496" y="609" fill="#55555F" font-family="system-ui, -apple-system, &quot;PingFang SC&quot;, &quot;Microsoft YaHei&quot;, sans-serif" font-size="15" font-weight="400" text-anchor="middle">Agent</text>
+        <text x="568" y="609" fill="#55555F" font-family="system-ui, -apple-system, &quot;PingFang SC&quot;, &quot;Microsoft YaHei&quot;, sans-serif" font-size="15" font-weight="400" text-anchor="middle">会话</text>
+        <text x="640" y="609" fill="#55555F" font-family="system-ui, -apple-system, &quot;PingFang SC&quot;, &quot;Microsoft YaHei&quot;, sans-serif" font-size="15" font-weight="400" text-anchor="middle">资源库</text>
+        <text x="712" y="609" fill="#55555F" font-family="system-ui, -apple-system, &quot;PingFang SC&quot;, &quot;Microsoft YaHei&quot;, sans-serif" font-size="15" font-weight="400" text-anchor="middle">供应商</text>
+        <rect x="770" y="579" width="28" height="3" fill="#4F46E5" rx="1" />
+        <text x="784" y="609" fill="#4F46E5" font-family="system-ui, -apple-system, &quot;PingFang SC&quot;, &quot;Microsoft YaHei&quot;, sans-serif" font-size="15" font-weight="600" text-anchor="middle">更多</text>
+        <text x="476" y="285" fill="#55555F" font-family="system-ui, -apple-system, &quot;PingFang SC&quot;, &quot;Microsoft YaHei&quot;, sans-serif" font-size="18" font-weight="500" text-anchor="start">Agent 接入与模型</text>
+        <rect x="476" y="302" width="328" height="65" fill="#FFFFFF" rx="8" stroke="#D4D4DB" stroke-width="1" />
+        <text x="490" y="328" fill="#1C1C21" font-family="system-ui, -apple-system, &quot;PingFang SC&quot;, &quot;Microsoft YaHei&quot;, sans-serif" font-size="18" font-weight="600" text-anchor="start">Claude Code</text>
+        <text x="490" y="351" fill="#55555F" font-family="system-ui, -apple-system, &quot;PingFang SC&quot;, &quot;Microsoft YaHei&quot;, sans-serif" font-size="14" font-weight="400" text-anchor="start">接入状态与当前模型</text>
+        <rect x="604" y="362" width="200" height="206" fill="#FFFFFF" rx="8" stroke="#85858D" stroke-width="1" />
+        <text x="629" y="392" fill="#1C1C21" font-family="system-ui, -apple-system, &quot;PingFang SC&quot;, &quot;Microsoft YaHei&quot;, sans-serif" font-size="17" font-weight="400" text-anchor="start">路由</text>
+        <text x="629" y="431" fill="#1C1C21" font-family="system-ui, -apple-system, &quot;PingFang SC&quot;, &quot;Microsoft YaHei&quot;, sans-serif" font-size="17" font-weight="400" text-anchor="start">网关</text>
+        <rect x="611" y="445" width="186" height="37" fill="#EEEDFD" rx="4" />
+        <text x="629" y="470" fill="#4F46E5" font-family="system-ui, -apple-system, &quot;PingFang SC&quot;, &quot;Microsoft YaHei&quot;, sans-serif" font-size="17" font-weight="600" text-anchor="start">用量</text>
+        <text x="629" y="509" fill="#1C1C21" font-family="system-ui, -apple-system, &quot;PingFang SC&quot;, &quot;Microsoft YaHei&quot;, sans-serif" font-size="17" font-weight="400" text-anchor="start">脱敏</text>
+        <text x="629" y="548" fill="#1C1C21" font-family="system-ui, -apple-system, &quot;PingFang SC&quot;, &quot;Microsoft YaHei&quot;, sans-serif" font-size="17" font-weight="400" text-anchor="start">插件</text>
+        <rect x="888" y="204" width="360" height="424" fill="#FAFAFB" rx="10" stroke="#85858D" stroke-width="1" />
+        <text x="904" y="238" fill="#1C1C21" font-family="system-ui, -apple-system, &quot;PingFang SC&quot;, &quot;Microsoft YaHei&quot;, sans-serif" font-size="21" font-weight="600" text-anchor="start">magpie</text>
+        <text x="1116" y="237" fill="#55555F" font-family="system-ui, -apple-system, &quot;PingFang SC&quot;, &quot;Microsoft YaHei&quot;, sans-serif" font-size="14" font-weight="400" text-anchor="end">局域网用量</text>
+        <text x="1232" y="237" fill="#55555F" font-family="system-ui, -apple-system, &quot;PingFang SC&quot;, &quot;Microsoft YaHei&quot;, sans-serif" font-size="15" font-weight="500" text-anchor="end">设置</text>
+        <rect x="888" y="254" width="360" height="1" fill="#D4D4DB" />
+        <rect x="888" y="576" width="360" height="1" fill="#D4D4DB" />
+        <text x="924" y="609" fill="#55555F" font-family="system-ui, -apple-system, &quot;PingFang SC&quot;, &quot;Microsoft YaHei&quot;, sans-serif" font-size="15" font-weight="400" text-anchor="middle">Agent</text>
+        <text x="996" y="609" fill="#55555F" font-family="system-ui, -apple-system, &quot;PingFang SC&quot;, &quot;Microsoft YaHei&quot;, sans-serif" font-size="15" font-weight="400" text-anchor="middle">会话</text>
+        <text x="1068" y="609" fill="#55555F" font-family="system-ui, -apple-system, &quot;PingFang SC&quot;, &quot;Microsoft YaHei&quot;, sans-serif" font-size="15" font-weight="400" text-anchor="middle">资源库</text>
+        <text x="1140" y="609" fill="#55555F" font-family="system-ui, -apple-system, &quot;PingFang SC&quot;, &quot;Microsoft YaHei&quot;, sans-serif" font-size="15" font-weight="400" text-anchor="middle">供应商</text>
+        <rect x="1198" y="579" width="28" height="3" fill="#4F46E5" rx="1" />
+        <text x="1212" y="609" fill="#4F46E5" font-family="system-ui, -apple-system, &quot;PingFang SC&quot;, &quot;Microsoft YaHei&quot;, sans-serif" font-size="15" font-weight="600" text-anchor="middle">更多</text>
+        <rect x="904" y="267" width="328" height="39" fill="#FFFFFF" rx="5" stroke="#D4D4DB" stroke-width="1" />
+        <text x="916" y="292" fill="#1C1C21" font-family="system-ui, -apple-system, &quot;PingFang SC&quot;, &quot;Microsoft YaHei&quot;, sans-serif" font-size="16" font-weight="600" text-anchor="start">当前主机</text>
+        <text x="1218" y="292" fill="#55555F" font-family="system-ui, -apple-system, &quot;PingFang SC&quot;, &quot;Microsoft YaHei&quot;, sans-serif" font-size="15" font-weight="400" text-anchor="end">连接设置</text>
+        <rect x="904" y="318" width="328" height="35" fill="#EBEBEF" rx="6" />
+        <rect x="1070.0" y="320" width="160.0" height="31" fill="#FFFFFF" rx="5" stroke="#D4D4DB" stroke-width="1" />
+        <text x="986.0" y="341" fill="#55555F" font-family="system-ui, -apple-system, &quot;PingFang SC&quot;, &quot;Microsoft YaHei&quot;, sans-serif" font-size="15" font-weight="400" text-anchor="middle">概览</text>
+        <text x="1150.0" y="341" fill="#1C1C21" font-family="system-ui, -apple-system, &quot;PingFang SC&quot;, &quot;Microsoft YaHei&quot;, sans-serif" font-size="15" font-weight="600" text-anchor="middle">请求</text>
+        <text x="908" y="384" fill="#1C1C21" font-family="system-ui, -apple-system, &quot;PingFang SC&quot;, &quot;Microsoft YaHei&quot;, sans-serif" font-size="17" font-weight="600" text-anchor="start">最近 7 天  ▾</text>
+        <text x="1218" y="384" fill="#55555F" font-family="system-ui, -apple-system, &quot;PingFang SC&quot;, &quot;Microsoft YaHei&quot;, sans-serif" font-size="15" font-weight="400" text-anchor="end">刷新</text>
+        <rect x="904" y="399" width="328" height="65" fill="#FFFFFF" rx="8" stroke="#D4D4DB" stroke-width="1" />
+        <text x="918" y="425" fill="#1C1C21" font-family="system-ui, -apple-system, &quot;PingFang SC&quot;, &quot;Microsoft YaHei&quot;, sans-serif" font-size="18" font-weight="600" text-anchor="start">Agent · 模型</text>
+        <text x="918" y="448" fill="#55555F" font-family="system-ui, -apple-system, &quot;PingFang SC&quot;, &quot;Microsoft YaHei&quot;, sans-serif" font-size="14" font-weight="400" text-anchor="start">时间与状态　›　打开单条请求</text>
+        <text x="908" y="505" fill="#4F46E5" font-family="system-ui, -apple-system, &quot;PingFang SC&quot;, &quot;Microsoft YaHei&quot;, sans-serif" font-size="16" font-weight="600" text-anchor="start">加载更多</text>
+        <text x="908" y="539" fill="#55555F" font-family="system-ui, -apple-system, &quot;PingFang SC&quot;, &quot;Microsoft YaHei&quot;, sans-serif" font-size="14" font-weight="400" text-anchor="start">翻页失败时保留已展示的请求</text>
+        <rect x="32" y="650" width="1216" height="1" fill="#D4D4DB" />
+        <text x="32" y="681" fill="#1C1C21" font-family="system-ui, -apple-system, &quot;PingFang SC&quot;, &quot;Microsoft YaHei&quot;, sans-serif" font-size="16" font-weight="600" text-anchor="start">底栏属于整页导航。「概览 / 请求」只切换用量页的内容，单条请求在详情弹层中打开。</text>
+        <text x="32" y="704" fill="#55555F" font-family="system-ui, -apple-system, &quot;PingFang SC&quot;, &quot;Microsoft YaHei&quot;, sans-serif" font-size="15" font-weight="400" text-anchor="start">未连接时在用量页展示连接和演示入口。网页参考中的「会话 / 上下文」与趋势图不属于首轮真实用量范围。</text>
+      </svg>
+    </div>
+  </main>
+</body>
+</html>

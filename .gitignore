@@ -1,4 +1,5 @@
-/docs/
+# Local research, planning notes and reference material
+/docs-local/
 .DS_Store
 
 # Local IDE state and build output

@@ -1,0 +1,98 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>移动客户端项目结构 · Magpie Mobile</title>
+  <style>
+    * { box-sizing: border-box; }
+    body { margin: 0; min-height: 100vh; display: grid; place-items: center; background: #F4F4F6; }
+    main { width: min(100%, 1280px); min-width: 0; }
+    .diagram-container { width: 100%; overflow-x: auto; }
+    svg { display: block; width: 100%; min-width: 1280px; }
+    @media print {
+      .diagram-container { overflow-x: visible; }
+      svg { min-width: 0; }
+    }
+  </style>
+</head>
+<body>
+  <main aria-label="移动客户端项目结构">
+    <div class="diagram-container">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 720" role="img" aria-labelledby="project-structure-title project-structure-desc">
+        <title id="project-structure-title">移动客户端项目结构</title>
+        <desc id="project-structure-desc">两个原生工程各自实现导航、示例页与用量界面，读取主机数据的用量功能依赖同一个 Kotlin Multiplatform 模块，后续会话功能需要新的主机契约。</desc>
+        <defs>
+          <marker id="flow" markerWidth="6" markerHeight="6" refX="5" refY="3" orient="auto">
+            <path d="M 0 0 L 5 3 L 0 6 Z" fill="#55555F" />
+          </marker>
+          <marker id="query" markerWidth="6" markerHeight="6" refX="5" refY="3" orient="auto">
+            <path d="M 0 0 L 5 3 L 0 6 Z" fill="#4F46E5" />
+          </marker>
+        </defs>
+        <rect x="0" y="0" width="1280" height="720" fill="#F4F4F6" />
+        <text x="32" y="32" fill="#55555F" font-family="system-ui, -apple-system, &quot;PingFang SC&quot;, &quot;Microsoft YaHei&quot;, sans-serif" font-size="16" font-weight="600" text-anchor="start">Magpie Mobile</text>
+        <text x="30" y="82" fill="#1C1C21" font-family="&quot;Songti SC&quot;, &quot;Noto Serif CJK SC&quot;, &quot;STSong&quot;, serif" font-size="38" font-weight="600" text-anchor="start">移动客户端项目结构</text>
+        <text x="32" y="114" fill="#55555F" font-family="system-ui, -apple-system, &quot;PingFang SC&quot;, &quot;Microsoft YaHei&quot;, sans-serif" font-size="17" font-weight="400" text-anchor="start">当前仓库由两个原生应用和一个共享库组成。页面导航、示例内容和读取主机数据的功能各有入口。</text>
+        <rect x="32" y="145" width="372" height="349" fill="#FFFFFF" rx="8" stroke="#85858D" stroke-width="1" />
+        <text x="48" y="178" fill="#1C1C21" font-family="system-ui, -apple-system, &quot;PingFang SC&quot;, &quot;Microsoft YaHei&quot;, sans-serif" font-size="22" font-weight="600" text-anchor="start">Android 应用</text>
+        <text x="48" y="204" fill="#55555F" font-family="system-ui, -apple-system, &quot;PingFang SC&quot;, &quot;Microsoft YaHei&quot;, sans-serif" font-size="15" font-weight="400" text-anchor="start">magpie-android/ · :app</text>
+        <rect x="48" y="222" width="340" height="1" fill="#D4D4DB" />
+        <text x="48" y="247" fill="#1C1C21" font-family="system-ui, -apple-system, &quot;PingFang SC&quot;, &quot;Microsoft YaHei&quot;, sans-serif" font-size="17" font-weight="600" text-anchor="start">应用入口与导航</text>
+        <text x="48" y="270" fill="#1C1C21" font-family="system-ui, -apple-system, &quot;PingFang SC&quot;, &quot;Microsoft YaHei&quot;, sans-serif" font-size="16" font-weight="400" text-anchor="start">MainActivity → MagpieApp</text>
+        <text x="48" y="291" fill="#55555F" font-family="system-ui, -apple-system, &quot;PingFang SC&quot;, &quot;Microsoft YaHei&quot;, sans-serif" font-size="14" font-weight="400" text-anchor="start">主题、底栏、更多、设置和页面状态</text>
+        <rect x="48" y="308" width="340" height="1" fill="#D4D4DB" />
+        <text x="48" y="333" fill="#1C1C21" font-family="system-ui, -apple-system, &quot;PingFang SC&quot;, &quot;Microsoft YaHei&quot;, sans-serif" font-size="17" font-weight="600" text-anchor="start">浏览与演示</text>
+        <text x="48" y="356" fill="#1C1C21" font-family="system-ui, -apple-system, &quot;PingFang SC&quot;, &quot;Microsoft YaHei&quot;, sans-serif" font-size="16" font-weight="400" text-anchor="start">ui/DemoScreens.kt、UsageDemo.kt</text>
+        <text x="48" y="377" fill="#55555F" font-family="system-ui, -apple-system, &quot;PingFang SC&quot;, &quot;Microsoft YaHei&quot;, sans-serif" font-size="14" font-weight="400" text-anchor="start">Agent、会话、资源库、供应商和示例用量</text>
+        <rect x="48" y="394" width="340" height="1" fill="#D4D4DB" />
+        <text x="48" y="419" fill="#1C1C21" font-family="system-ui, -apple-system, &quot;PingFang SC&quot;, &quot;Microsoft YaHei&quot;, sans-serif" font-size="17" font-weight="600" text-anchor="start">已接入功能</text>
+        <text x="48" y="442" fill="#1C1C21" font-family="system-ui, -apple-system, &quot;PingFang SC&quot;, &quot;Microsoft YaHei&quot;, sans-serif" font-size="16" font-weight="400" text-anchor="start">usage/ · LanUsageRoute</text>
+        <text x="48" y="463" fill="#55555F" font-family="system-ui, -apple-system, &quot;PingFang SC&quot;, &quot;Microsoft YaHei&quot;, sans-serif" font-size="14" font-weight="400" text-anchor="start">用量页、连接表单、凭据保存与 HTTPS</text>
+        <rect x="876" y="145" width="372" height="349" fill="#FFFFFF" rx="8" stroke="#85858D" stroke-width="1" />
+        <text x="892" y="178" fill="#1C1C21" font-family="system-ui, -apple-system, &quot;PingFang SC&quot;, &quot;Microsoft YaHei&quot;, sans-serif" font-size="22" font-weight="600" text-anchor="start">iOS 应用</text>
+        <text x="892" y="204" fill="#55555F" font-family="system-ui, -apple-system, &quot;PingFang SC&quot;, &quot;Microsoft YaHei&quot;, sans-serif" font-size="15" font-weight="400" text-anchor="start">magpie-ios/ · 集成分支</text>
+        <rect x="892" y="222" width="340" height="1" fill="#D4D4DB" />
+        <text x="892" y="247" fill="#1C1C21" font-family="system-ui, -apple-system, &quot;PingFang SC&quot;, &quot;Microsoft YaHei&quot;, sans-serif" font-size="17" font-weight="600" text-anchor="start">应用入口与导航</text>
+        <text x="892" y="270" fill="#1C1C21" font-family="system-ui, -apple-system, &quot;PingFang SC&quot;, &quot;Microsoft YaHei&quot;, sans-serif" font-size="16" font-weight="400" text-anchor="start">ContentView → MagpieWorkspace</text>
+        <text x="892" y="291" fill="#55555F" font-family="system-ui, -apple-system, &quot;PingFang SC&quot;, &quot;Microsoft YaHei&quot;, sans-serif" font-size="14" font-weight="400" text-anchor="start">顶栏、底栏、设置弹层与前后台事件</text>
+        <rect x="892" y="308" width="340" height="1" fill="#D4D4DB" />
+        <text x="892" y="333" fill="#1C1C21" font-family="system-ui, -apple-system, &quot;PingFang SC&quot;, &quot;Microsoft YaHei&quot;, sans-serif" font-size="17" font-weight="600" text-anchor="start">浏览与演示</text>
+        <text x="892" y="356" fill="#1C1C21" font-family="system-ui, -apple-system, &quot;PingFang SC&quot;, &quot;Microsoft YaHei&quot;, sans-serif" font-size="16" font-weight="400" text-anchor="start">AgentPage、BrowsePages、UsageDemoPage</text>
+        <text x="892" y="377" fill="#55555F" font-family="system-ui, -apple-system, &quot;PingFang SC&quot;, &quot;Microsoft YaHei&quot;, sans-serif" font-size="14" font-weight="400" text-anchor="start">原生列表、分类与详情弹层</text>
+        <rect x="892" y="394" width="340" height="1" fill="#D4D4DB" />
+        <text x="892" y="419" fill="#1C1C21" font-family="system-ui, -apple-system, &quot;PingFang SC&quot;, &quot;Microsoft YaHei&quot;, sans-serif" font-size="17" font-weight="600" text-anchor="start">集成中的功能</text>
+        <text x="892" y="442" fill="#1C1C21" font-family="system-ui, -apple-system, &quot;PingFang SC&quot;, &quot;Microsoft YaHei&quot;, sans-serif" font-size="16" font-weight="400" text-anchor="start">UsagePage、UsageWorkspace</text>
+        <text x="892" y="463" fill="#55555F" font-family="system-ui, -apple-system, &quot;PingFang SC&quot;, &quot;Microsoft YaHei&quot;, sans-serif" font-size="14" font-weight="400" text-anchor="start">连接表单、Keychain 与 Swift 桥接</text>
+        <path d="M 404 430 H 460" fill="none" stroke="#4F46E5" stroke-width="2" marker-end="url(#query)" />
+        <path d="M 876 430 H 820" fill="none" stroke="#4F46E5" stroke-width="2" marker-end="url(#query)" />
+        <rect x="460" y="145" width="360" height="349" fill="#EEEDFD" rx="8" stroke="#4F46E5" stroke-width="1" />
+        <text x="476" y="178" fill="#1C1C21" font-family="system-ui, -apple-system, &quot;PingFang SC&quot;, &quot;Microsoft YaHei&quot;, sans-serif" font-size="22" font-weight="600" text-anchor="start">共用的用量模块</text>
+        <text x="476" y="204" fill="#55555F" font-family="system-ui, -apple-system, &quot;PingFang SC&quot;, &quot;Microsoft YaHei&quot;, sans-serif" font-size="15" font-weight="400" text-anchor="start">shared/ · Kotlin Multiplatform</text>
+        <rect x="476" y="222" width="328" height="1" fill="#D4D4DB" />
+        <text x="476" y="247" fill="#1C1C21" font-family="system-ui, -apple-system, &quot;PingFang SC&quot;, &quot;Microsoft YaHei&quot;, sans-serif" font-size="17" font-weight="600" text-anchor="start">commonMain · 业务</text>
+        <text x="476" y="270" fill="#1C1C21" font-family="system-ui, -apple-system, &quot;PingFang SC&quot;, &quot;Microsoft YaHei&quot;, sans-serif" font-size="16" font-weight="400" text-anchor="start">UsageController、UsageState</text>
+        <text x="476" y="291" fill="#55555F" font-family="system-ui, -apple-system, &quot;PingFang SC&quot;, &quot;Microsoft YaHei&quot;, sans-serif" font-size="14" font-weight="400" text-anchor="start">连接、时段、概览、分页和错误</text>
+        <rect x="476" y="308" width="328" height="1" fill="#D4D4DB" />
+        <text x="476" y="333" fill="#1C1C21" font-family="system-ui, -apple-system, &quot;PingFang SC&quot;, &quot;Microsoft YaHei&quot;, sans-serif" font-size="17" font-weight="600" text-anchor="start">commonMain · 协议</text>
+        <text x="476" y="356" fill="#1C1C21" font-family="system-ui, -apple-system, &quot;PingFang SC&quot;, &quot;Microsoft YaHei&quot;, sans-serif" font-size="16" font-weight="400" text-anchor="start">UsageOrigin、UsageProtocol.kt</text>
+        <text x="476" y="377" fill="#55555F" font-family="system-ui, -apple-system, &quot;PingFang SC&quot;, &quot;Microsoft YaHei&quot;, sans-serif" font-size="14" font-weight="400" text-anchor="start">地址解析、响应解析与权限映射</text>
+        <rect x="476" y="394" width="328" height="1" fill="#D4D4DB" />
+        <text x="476" y="419" fill="#1C1C21" font-family="system-ui, -apple-system, &quot;PingFang SC&quot;, &quot;Microsoft YaHei&quot;, sans-serif" font-size="17" font-weight="600" text-anchor="start">平台接入与测试</text>
+        <text x="476" y="442" fill="#1C1C21" font-family="system-ui, -apple-system, &quot;PingFang SC&quot;, &quot;Microsoft YaHei&quot;, sans-serif" font-size="16" font-weight="400" text-anchor="start">UsageCredentials、UsageTransport</text>
+        <text x="476" y="463" fill="#55555F" font-family="system-ui, -apple-system, &quot;PingFang SC&quot;, &quot;Microsoft YaHei&quot;, sans-serif" font-size="14" font-weight="400" text-anchor="start">commonTest 验证协议与状态转换</text>
+        <text x="32" y="527" fill="#1C1C21" font-family="system-ui, -apple-system, &quot;PingFang SC&quot;, &quot;Microsoft YaHei&quot;, sans-serif" font-size="17" font-weight="600" text-anchor="start">构建产物</text>
+        <text x="146" y="527" fill="#55555F" font-family="system-ui, -apple-system, &quot;PingFang SC&quot;, &quot;Microsoft YaHei&quot;, sans-serif" font-size="16" font-weight="400" text-anchor="start">Android 直接依赖 :shared。iOS 链接静态 MagpieShared.xcframework，包含真机与模拟器的 arm64 切片。</text>
+        <rect x="32" y="550" width="1216" height="136" fill="#FFFFFF" rx="8" stroke="#D4D4DB" stroke-width="1" />
+        <text x="48" y="582" fill="#1C1C21" font-family="system-ui, -apple-system, &quot;PingFang SC&quot;, &quot;Microsoft YaHei&quot;, sans-serif" font-size="20" font-weight="600" text-anchor="start">规划中的远程会话</text>
+        <text x="48" y="620" fill="#1C1C21" font-family="system-ui, -apple-system, &quot;PingFang SC&quot;, &quot;Microsoft YaHei&quot;, sans-serif" font-size="17" font-weight="600" text-anchor="start">原生应用</text>
+        <text x="48" y="650" fill="#55555F" font-family="system-ui, -apple-system, &quot;PingFang SC&quot;, &quot;Microsoft YaHei&quot;, sans-serif" font-size="16" font-weight="400" text-anchor="start">从会话页进入时间线、输入与审批。</text>
+        <text x="454" y="620" fill="#1C1C21" font-family="system-ui, -apple-system, &quot;PingFang SC&quot;, &quot;Microsoft YaHei&quot;, sans-serif" font-size="17" font-weight="600" text-anchor="start">共享业务与通信</text>
+        <text x="454" y="650" fill="#55555F" font-family="system-ui, -apple-system, &quot;PingFang SC&quot;, &quot;Microsoft YaHei&quot;, sans-serif" font-size="16" font-weight="400" text-anchor="start">新增会话状态、配对、加密和重连。</text>
+        <text x="862" y="620" fill="#1C1C21" font-family="system-ui, -apple-system, &quot;PingFang SC&quot;, &quot;Microsoft YaHei&quot;, sans-serif" font-size="17" font-weight="600" text-anchor="start">手机以外</text>
+        <text x="862" y="650" fill="#55555F" font-family="system-ui, -apple-system, &quot;PingFang SC&quot;, &quot;Microsoft YaHei&quot;, sans-serif" font-size="16" font-weight="400" text-anchor="start">中继转发密文，主机上的 Agent 恢复会话。</text>
+      </svg>
+    </div>
+  </main>
+</body>
+</html>

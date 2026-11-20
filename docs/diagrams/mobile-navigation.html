@@ -1,0 +1,109 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>移动端页面地图 · Magpie Mobile</title>
+  <style>
+    * { box-sizing: border-box; }
+    body { margin: 0; min-height: 100vh; display: grid; place-items: center; background: #F4F4F6; }
+    main { width: min(100%, 1280px); min-width: 0; }
+    .diagram-container { width: 100%; overflow-x: auto; }
+    svg { display: block; width: 100%; min-width: 1280px; }
+    @media print {
+      .diagram-container { overflow-x: visible; }
+      svg { min-width: 0; }
+    }
+  </style>
+</head>
+<body>
+  <main aria-label="移动端页面地图">
+    <div class="diagram-container">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 720" role="img" aria-labelledby="mobile-navigation-title mobile-navigation-desc">
+        <title id="mobile-navigation-title">移动端页面地图</title>
+        <desc id="mobile-navigation-desc">顶栏承载全局设置，底栏连接 Agent、会话、资源库、供应商和更多。会话和主机承载原生扩展，用量位于更多菜单。</desc>
+        <defs>
+          <marker id="flow" markerWidth="6" markerHeight="6" refX="5" refY="3" orient="auto">
+            <path d="M 0 0 L 5 3 L 0 6 Z" fill="#55555F" />
+          </marker>
+          <marker id="query" markerWidth="6" markerHeight="6" refX="5" refY="3" orient="auto">
+            <path d="M 0 0 L 5 3 L 0 6 Z" fill="#4F46E5" />
+          </marker>
+        </defs>
+        <rect x="0" y="0" width="1280" height="720" fill="#F4F4F6" />
+        <text x="32" y="32" fill="#55555F" font-family="system-ui, -apple-system, &quot;PingFang SC&quot;, &quot;Microsoft YaHei&quot;, sans-serif" font-size="16" font-weight="600" text-anchor="start">Magpie Mobile</text>
+        <text x="30" y="82" fill="#1C1C21" font-family="&quot;Songti SC&quot;, &quot;Noto Serif CJK SC&quot;, &quot;STSong&quot;, serif" font-size="38" font-weight="600" text-anchor="start">移动端页面地图</text>
+        <text x="32" y="114" fill="#55555F" font-family="system-ui, -apple-system, &quot;PingFang SC&quot;, &quot;Microsoft YaHei&quot;, sans-serif" font-size="17" font-weight="400" text-anchor="start">从入口往下读到页面与操作。每个入口标出当下可体验的内容，以及已经讨论过的扩展位置。</text>
+        <rect x="32" y="144" width="1216" height="76" fill="#FFFFFF" rx="8" stroke="#D4D4DB" stroke-width="1" />
+        <text x="52" y="176" fill="#1C1C21" font-family="system-ui, -apple-system, &quot;PingFang SC&quot;, &quot;Microsoft YaHei&quot;, sans-serif" font-size="21" font-weight="600" text-anchor="start">全局顶栏</text>
+        <text x="52" y="201" fill="#55555F" font-family="system-ui, -apple-system, &quot;PingFang SC&quot;, &quot;Microsoft YaHei&quot;, sans-serif" font-size="15" font-weight="400" text-anchor="start">跨页面</text>
+        <text x="235" y="177" fill="#1C1C21" font-family="system-ui, -apple-system, &quot;PingFang SC&quot;, &quot;Microsoft YaHei&quot;, sans-serif" font-size="19" font-weight="600" text-anchor="start">当前　品牌与设置</text>
+        <text x="235" y="202" fill="#55555F" font-family="system-ui, -apple-system, &quot;PingFang SC&quot;, &quot;Microsoft YaHei&quot;, sans-serif" font-size="15" font-weight="400" text-anchor="start">外观选择立即作用于本机</text>
+        <text x="690" y="177" fill="#1C1C21" font-family="system-ui, -apple-system, &quot;PingFang SC&quot;, &quot;Microsoft YaHei&quot;, sans-serif" font-size="19" font-weight="600" text-anchor="start">规划　当前主机与连接状态</text>
+        <text x="690" y="202" fill="#55555F" font-family="system-ui, -apple-system, &quot;PingFang SC&quot;, &quot;Microsoft YaHei&quot;, sans-serif" font-size="15" font-weight="400" text-anchor="start">点开选择主机或扫码配对，返回原页面</text>
+        <text x="32" y="263" fill="#1C1C21" font-family="system-ui, -apple-system, &quot;PingFang SC&quot;, &quot;Microsoft YaHei&quot;, sans-serif" font-size="21" font-weight="600" text-anchor="start">底部导航</text>
+        <path d="M 151 256 H 1140" stroke="#85858D" fill="none" stroke-width="1.4" />
+        <path d="M 151 256 H 140 V 284" stroke="#85858D" fill="none" stroke-width="1.4" />
+        <path d="M 390 256 V 284" stroke="#85858D" fill="none" stroke-width="1.4" />
+        <path d="M 640 256 V 284" stroke="#85858D" fill="none" stroke-width="1.4" />
+        <path d="M 890 256 V 284" stroke="#85858D" fill="none" stroke-width="1.4" />
+        <path d="M 1140 256 V 284" stroke="#85858D" fill="none" stroke-width="1.4" />
+        <rect x="32" y="284" width="216" height="240" fill="#FFFFFF" rx="6" stroke="#D4D4DB" stroke-width="1" />
+        <text x="46" y="317" fill="#1C1C21" font-family="system-ui, -apple-system, &quot;PingFang SC&quot;, &quot;Microsoft YaHei&quot;, sans-serif" font-size="22" font-weight="600" text-anchor="start">Agent</text>
+        <text x="46" y="343" fill="#55555F" font-family="system-ui, -apple-system, &quot;PingFang SC&quot;, &quot;Microsoft YaHei&quot;, sans-serif" font-size="15" font-weight="400" text-anchor="start">示例界面</text>
+        <rect x="46" y="355" width="188" height="1" fill="#D4D4DB" />
+        <text x="46" y="383" fill="#1C1C21" font-family="system-ui, -apple-system, &quot;PingFang SC&quot;, &quot;Microsoft YaHei&quot;, sans-serif" font-size="17" font-weight="600" text-anchor="start">Agent 列表</text>
+        <text x="46" y="404" fill="#55555F" font-family="system-ui, -apple-system, &quot;PingFang SC&quot;, &quot;Microsoft YaHei&quot;, sans-serif" font-size="13" font-weight="400" text-anchor="start">接入状态、当前模型</text>
+        <text x="46" y="433" fill="#1C1C21" font-family="system-ui, -apple-system, &quot;PingFang SC&quot;, &quot;Microsoft YaHei&quot;, sans-serif" font-size="17" font-weight="600" text-anchor="start">配置详情</text>
+        <text x="46" y="454" fill="#55555F" font-family="system-ui, -apple-system, &quot;PingFang SC&quot;, &quot;Microsoft YaHei&quot;, sans-serif" font-size="13" font-weight="400" text-anchor="start">查看模型与供应商</text>
+        <text x="46" y="483" fill="#1C1C21" font-family="system-ui, -apple-system, &quot;PingFang SC&quot;, &quot;Microsoft YaHei&quot;, sans-serif" font-size="17" font-weight="600" text-anchor="start">方案</text>
+        <text x="46" y="504" fill="#55555F" font-family="system-ui, -apple-system, &quot;PingFang SC&quot;, &quot;Microsoft YaHei&quot;, sans-serif" font-size="13" font-weight="400" text-anchor="start">保存或恢复示例选择</text>
+        <rect x="282" y="284" width="216" height="240" fill="#FFFFFF" rx="6" stroke="#D4D4DB" stroke-width="1" />
+        <text x="296" y="317" fill="#1C1C21" font-family="system-ui, -apple-system, &quot;PingFang SC&quot;, &quot;Microsoft YaHei&quot;, sans-serif" font-size="22" font-weight="600" text-anchor="start">会话</text>
+        <text x="296" y="343" fill="#55555F" font-family="system-ui, -apple-system, &quot;PingFang SC&quot;, &quot;Microsoft YaHei&quot;, sans-serif" font-size="15" font-weight="400" text-anchor="start">示例界面</text>
+        <rect x="296" y="355" width="188" height="1" fill="#D4D4DB" />
+        <text x="296" y="383" fill="#1C1C21" font-family="system-ui, -apple-system, &quot;PingFang SC&quot;, &quot;Microsoft YaHei&quot;, sans-serif" font-size="17" font-weight="600" text-anchor="start">会话列表</text>
+        <text x="296" y="404" fill="#55555F" font-family="system-ui, -apple-system, &quot;PingFang SC&quot;, &quot;Microsoft YaHei&quot;, sans-serif" font-size="13" font-weight="400" text-anchor="start">按项目、Agent 辨认</text>
+        <text x="296" y="433" fill="#1C1C21" font-family="system-ui, -apple-system, &quot;PingFang SC&quot;, &quot;Microsoft YaHei&quot;, sans-serif" font-size="17" font-weight="600" text-anchor="start">历史摘要</text>
+        <text x="296" y="454" fill="#55555F" font-family="system-ui, -apple-system, &quot;PingFang SC&quot;, &quot;Microsoft YaHei&quot;, sans-serif" font-size="13" font-weight="400" text-anchor="start">点选记录查看详情</text>
+        <text x="296" y="483" fill="#1C1C21" font-family="system-ui, -apple-system, &quot;PingFang SC&quot;, &quot;Microsoft YaHei&quot;, sans-serif" font-size="17" font-weight="600" text-anchor="start">规划 · 导入与续聊</text>
+        <text x="296" y="504" fill="#55555F" font-family="system-ui, -apple-system, &quot;PingFang SC&quot;, &quot;Microsoft YaHei&quot;, sans-serif" font-size="13" font-weight="400" text-anchor="start">恢复主机上的原会话</text>
+        <rect x="532" y="284" width="216" height="240" fill="#FFFFFF" rx="6" stroke="#D4D4DB" stroke-width="1" />
+        <text x="546" y="317" fill="#1C1C21" font-family="system-ui, -apple-system, &quot;PingFang SC&quot;, &quot;Microsoft YaHei&quot;, sans-serif" font-size="22" font-weight="600" text-anchor="start">资源库</text>
+        <text x="546" y="343" fill="#55555F" font-family="system-ui, -apple-system, &quot;PingFang SC&quot;, &quot;Microsoft YaHei&quot;, sans-serif" font-size="15" font-weight="400" text-anchor="start">示例界面</text>
+        <rect x="546" y="355" width="188" height="1" fill="#D4D4DB" />
+        <text x="546" y="383" fill="#1C1C21" font-family="system-ui, -apple-system, &quot;PingFang SC&quot;, &quot;Microsoft YaHei&quot;, sans-serif" font-size="17" font-weight="600" text-anchor="start">指令</text>
+        <text x="546" y="404" fill="#55555F" font-family="system-ui, -apple-system, &quot;PingFang SC&quot;, &quot;Microsoft YaHei&quot;, sans-serif" font-size="13" font-weight="400" text-anchor="start">浏览资源分类</text>
+        <text x="546" y="433" fill="#1C1C21" font-family="system-ui, -apple-system, &quot;PingFang SC&quot;, &quot;Microsoft YaHei&quot;, sans-serif" font-size="17" font-weight="600" text-anchor="start">MCP 服务</text>
+        <text x="546" y="454" fill="#55555F" font-family="system-ui, -apple-system, &quot;PingFang SC&quot;, &quot;Microsoft YaHei&quot;, sans-serif" font-size="13" font-weight="400" text-anchor="start">查看资源条目</text>
+        <text x="546" y="483" fill="#1C1C21" font-family="system-ui, -apple-system, &quot;PingFang SC&quot;, &quot;Microsoft YaHei&quot;, sans-serif" font-size="17" font-weight="600" text-anchor="start">技能</text>
+        <text x="546" y="504" fill="#55555F" font-family="system-ui, -apple-system, &quot;PingFang SC&quot;, &quot;Microsoft YaHei&quot;, sans-serif" font-size="13" font-weight="400" text-anchor="start">查看技能分类</text>
+        <rect x="782" y="284" width="216" height="240" fill="#FFFFFF" rx="6" stroke="#D4D4DB" stroke-width="1" />
+        <text x="796" y="317" fill="#1C1C21" font-family="system-ui, -apple-system, &quot;PingFang SC&quot;, &quot;Microsoft YaHei&quot;, sans-serif" font-size="22" font-weight="600" text-anchor="start">供应商</text>
+        <text x="796" y="343" fill="#55555F" font-family="system-ui, -apple-system, &quot;PingFang SC&quot;, &quot;Microsoft YaHei&quot;, sans-serif" font-size="15" font-weight="400" text-anchor="start">示例界面</text>
+        <rect x="796" y="355" width="188" height="1" fill="#D4D4DB" />
+        <text x="796" y="383" fill="#1C1C21" font-family="system-ui, -apple-system, &quot;PingFang SC&quot;, &quot;Microsoft YaHei&quot;, sans-serif" font-size="17" font-weight="600" text-anchor="start">供应商列表</text>
+        <text x="796" y="404" fill="#55555F" font-family="system-ui, -apple-system, &quot;PingFang SC&quot;, &quot;Microsoft YaHei&quot;, sans-serif" font-size="13" font-weight="400" text-anchor="start">按名称查找</text>
+        <text x="796" y="433" fill="#1C1C21" font-family="system-ui, -apple-system, &quot;PingFang SC&quot;, &quot;Microsoft YaHei&quot;, sans-serif" font-size="17" font-weight="600" text-anchor="start">供应商详情</text>
+        <text x="796" y="454" fill="#55555F" font-family="system-ui, -apple-system, &quot;PingFang SC&quot;, &quot;Microsoft YaHei&quot;, sans-serif" font-size="13" font-weight="400" text-anchor="start">查看可用模型</text>
+        <text x="796" y="483" fill="#1C1C21" font-family="system-ui, -apple-system, &quot;PingFang SC&quot;, &quot;Microsoft YaHei&quot;, sans-serif" font-size="17" font-weight="600" text-anchor="start">规划 · 主机数据</text>
+        <text x="796" y="504" fill="#55555F" font-family="system-ui, -apple-system, &quot;PingFang SC&quot;, &quot;Microsoft YaHei&quot;, sans-serif" font-size="13" font-weight="400" text-anchor="start">按授权展示账号信息</text>
+        <rect x="1032" y="284" width="216" height="240" fill="#FFFFFF" rx="6" stroke="#D4D4DB" stroke-width="1" />
+        <text x="1046" y="317" fill="#1C1C21" font-family="system-ui, -apple-system, &quot;PingFang SC&quot;, &quot;Microsoft YaHei&quot;, sans-serif" font-size="22" font-weight="600" text-anchor="start">更多</text>
+        <text x="1046" y="343" fill="#55555F" font-family="system-ui, -apple-system, &quot;PingFang SC&quot;, &quot;Microsoft YaHei&quot;, sans-serif" font-size="15" font-weight="400" text-anchor="start">二级菜单</text>
+        <rect x="1046" y="355" width="188" height="1" fill="#D4D4DB" />
+        <text x="1046" y="383" fill="#1C1C21" font-family="system-ui, -apple-system, &quot;PingFang SC&quot;, &quot;Microsoft YaHei&quot;, sans-serif" font-size="17" font-weight="600" text-anchor="start">路由 / 网关</text>
+        <text x="1046" y="404" fill="#55555F" font-family="system-ui, -apple-system, &quot;PingFang SC&quot;, &quot;Microsoft YaHei&quot;, sans-serif" font-size="13" font-weight="400" text-anchor="start">路由规则、网关状态〔占位〕</text>
+        <text x="1046" y="433" fill="#4F46E5" font-family="system-ui, -apple-system, &quot;PingFang SC&quot;, &quot;Microsoft YaHei&quot;, sans-serif" font-size="17" font-weight="600" text-anchor="start">用量</text>
+        <text x="1046" y="454" fill="#55555F" font-family="system-ui, -apple-system, &quot;PingFang SC&quot;, &quot;Microsoft YaHei&quot;, sans-serif" font-size="13" font-weight="400" text-anchor="start">概览、请求与详情〔已接入〕</text>
+        <text x="1046" y="483" fill="#1C1C21" font-family="system-ui, -apple-system, &quot;PingFang SC&quot;, &quot;Microsoft YaHei&quot;, sans-serif" font-size="17" font-weight="600" text-anchor="start">脱敏 / 插件</text>
+        <text x="1046" y="504" fill="#55555F" font-family="system-ui, -apple-system, &quot;PingFang SC&quot;, &quot;Microsoft YaHei&quot;, sans-serif" font-size="13" font-weight="400" text-anchor="start">脱敏记录、插件状态〔占位〕</text>
+        <rect x="32" y="559" width="1216" height="111" fill="#EEEDFD" rx="8" stroke="#D4D4DB" stroke-width="1" />
+        <text x="52" y="594" fill="#1C1C21" font-family="system-ui, -apple-system, &quot;PingFang SC&quot;, &quot;Microsoft YaHei&quot;, sans-serif" font-size="20" font-weight="600" text-anchor="start">会话入口的扩展顺序</text>
+        <text x="52" y="626" fill="#1C1C21" font-family="system-ui, -apple-system, &quot;PingFang SC&quot;, &quot;Microsoft YaHei&quot;, sans-serif" font-size="19" font-weight="400" text-anchor="start">会话列表　→　选择原会话　→　主机确认可恢复　→　输入追问　→　流式回复</text>
+        <text x="52" y="653" fill="#55555F" font-family="system-ui, -apple-system, &quot;PingFang SC&quot;, &quot;Microsoft YaHei&quot;, sans-serif" font-size="15" font-weight="400" text-anchor="start">审批从会话事件打开。新建任务留在会话列表的操作区，属于单独评估的候选功能。</text>
+      </svg>
+    </div>
+  </main>
+</body>
+</html>

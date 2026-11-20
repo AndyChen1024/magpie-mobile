@@ -24,3 +24,5 @@ dependencyResolutionManagement {
 
 rootProject.name = "magpie-android"
 include(":app")
+include(":shared")
+project(":shared").projectDir = file("../shared")
