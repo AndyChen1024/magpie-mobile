@@ -35,8 +35,10 @@ jobs:
         run: ./gradlew --no-daemon :app:assembleDebug :app:assembleRelease :app:testDebugUnitTest :shared:testAndroidHostTest
       - name: Sign a test copy of the optimized APK and enable emulator acceleration
         run: |
+          keytool -genkeypair -alias smoke -keyalg RSA -validity 2 -dname "CN=CI smoke test" \
+            -keystore "$RUNNER_TEMP/smoke.p12" -storepass changeit -keypass changeit
           "$ANDROID_HOME/build-tools/36.0.0/apksigner" sign \
-            --ks "$HOME/.android/debug.keystore" --ks-pass pass:android \
+            --ks "$RUNNER_TEMP/smoke.p12" --ks-pass pass:changeit \
             --out "$RUNNER_TEMP/preview.apk" magpie-android/app/build/outputs/apk/release/app-release-unsigned.apk
           sudo chmod a+rw /dev/kvm
       - name: Launch the optimized app on Android 11
