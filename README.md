@@ -2,62 +2,66 @@
 
 # Magpie Mobile
 
-**在手机上查看 Magpie 网关的 Agent 用量。**
+**English** · [简体中文](README.zh-CN.md)
 
-面向 [Magpie](https://github.com/yetone/magpie) 用户的独立 Android 和 iOS 开源客户端。
+**Track agent requests, token usage, and costs on your Magpie gateway from your phone.**
 
-**[下载 Android 内测 APK](https://github.com/AndyChen1024/magpie-mobile/releases)** · **[从源码运行](#本地开发)** · **[工程文档](#工程文档)** · **[问题反馈](https://github.com/AndyChen1024/magpie-mobile/issues)**
+Independent, open-source Android and iOS clients for [Magpie](https://github.com/yetone/magpie).
+
+**[Download the Android preview APK](https://github.com/AndyChen1024/magpie-mobile/releases)** · **[Build from source](#build-from-source)** · **[Project documentation](#project-documentation)** · **[Report an issue](https://github.com/AndyChen1024/magpie-mobile/issues)**
 
 </div>
 
-## 当前进度
+## Project status
 
-项目处于早期开发阶段。Android 9 或更新版本可在 GitHub Releases 的预发布条目中下载 APK，安装后打开 **更多 → 用量 → 查看演示数据** 即可体验。iOS 可从源码运行。
+Magpie Mobile is in early development. On Android 9 or later, download the APK from a GitHub prerelease. To try it without a gateway, open **更多 → 用量 → 查看演示数据** (More → Usage → View demo data). You can build the iOS app from source.
 
-| 平台 | 当前实现 |
+| Platform | Available today |
 | --- | --- |
-| Android | 使用 Kotlin 和 Jetpack Compose。已接入局域网只读用量，可按今天、最近 7 天和最近 30 天查看调用次数、token、已知费用及请求明细。也可离线查看演示数据。 |
-| iOS | 使用 SwiftUI，局域网用量正在独立开发分支中集成。 |
+| Android | Built with Kotlin and Jetpack Compose. View read-only usage over the local network, including request counts, tokens, known costs, and individual requests for today, the last 7 days, or the last 30 days. Demo data works offline. |
+| iOS | Built with SwiftUI. Integration with the local gateway is in progress on a separate development branch. |
 
-## 本地开发
+## Build from source
 
-克隆仓库并检出要体验的分支，然后按平台运行。
+Clone the repository and check out the branch you want to try.
 
-- **Android**。在 Android Studio 打开 `magpie-android/`，使用 Android SDK 37 和 Gradle JDK 25 同步项目，然后在 Android 9（API 28）或更新的设备或模拟器上运行 `app`。
-- **iOS**。在 Mac 上用 Xcode 打开 `magpie-ios/magpie-ios.xcodeproj`，选择 `magpie-ios` Scheme 和 iOS 27.2 或更新版本的模拟器。真机调试时请选择自己的开发团队。
+- **Android.** Open `magpie-android/` in Android Studio. Sync with Android SDK 37 and Gradle JDK 25, then run `app` on a device or emulator with Android 9 (API 28) or later.
+- **iOS.** On a Mac, open `magpie-ios/magpie-ios.xcodeproj` in Xcode. Select the `magpie-ios` scheme and an iOS 27.2 or later simulator. To run on a physical device, select your own development team for signing.
 
-### 在 Android 上查看用量
+### View gateway usage on Android
 
-1. 打开 **更多 → 用量**，选择 **查看演示数据**，即可预览页面。
-2. 要查看自己的数据，在运行 Magpie 的电脑上开启局域网共享，准备手机可访问的 HTTPS 网关地址和网关密钥。网关证书须受应用信任，并匹配访问地址。[Magpie 局域网共享说明](https://github.com/yetone/magpie/blob/426a707a19ff7f481989f03c49519bf4dba1e593/docs/integrating.md#L50)
-3. 让手机和主机接入同一局域网，在 **用量 → 连接主机** 填写地址和密钥。连接后可切换时间范围，查看用量概览或翻阅请求明细。
+1. Open **更多 → 用量** (More → Usage). Choose **查看演示数据** (View demo data) to explore the screens offline.
+2. To see your own usage, enable LAN sharing on the computer running Magpie. You need a gateway key and an HTTPS address reachable from your phone. The app must trust the gateway certificate, and the certificate must match the address you enter. [Magpie LAN sharing guide](https://github.com/yetone/magpie/blob/426a707a19ff7f481989f03c49519bf4dba1e593/docs/integrating.md#L50)
+3. Connect your phone and the host to the same local network. Under **用量 → 连接主机** (Usage → Connect to host), enter the address and gateway key. Once connected, select a time range to view totals or browse individual requests.
 
-## 工程文档
+## Project documentation
 
-[![移动端总体架构，展示局域网用量查询和规划中的远程会话链路](docs/diagrams/system-architecture.png)](docs/architecture.md)
+The engineering documents and diagrams below are in Simplified Chinese.
 
-| 文档 | 内容 |
+[![The mobile app reads usage directly from the local Magpie gateway. In the planned remote session flow, a relay forwards encrypted messages to the user's host, where the agent runs.](docs/diagrams/system-architecture.png)](docs/architecture.md)
+
+| Document | What it covers |
 | --- | --- |
-| [局域网只读用量设计](docs/usage/README.md) | 网关接口、双端分工与验收用例 |
-| [Kotlin Multiplatform 共享模块](shared/README.md) | 用量查询、分页、构建测试和 Swift 接入 |
-| [移动端工程架构](docs/architecture.md) | 系统边界、双端工程结构、KMP 组件调用与用量数据流 |
-| [移动端 UI 设计](docs/mobile-ui.md) | 页面地图、手机布局、用量详情与远程会话扩展线框 |
-| [Git 工作流与发布规范（设计稿）](docs/git-workflow.md) | 分支、PR、双端验收和发版流程 |
-| [工程原则（讨论稿）](docs/CONSTITUTION.md) | 跨端职责、接口权限和验收原则 |
-| [Agent 工作约定](AGENTS.md) | 仓库改动、验证和协作约定 |
+| [Read-only usage over the LAN](docs/usage/README.md) | Gateway API, platform responsibilities, and acceptance tests |
+| [Kotlin Multiplatform shared module](shared/README.md) | Usage queries, pagination, builds, tests, and Swift integration |
+| [Mobile architecture](docs/architecture.md) | System boundaries, native app structure, shared components, and the flow of usage data |
+| [Mobile UI design](docs/mobile-ui.md) | Navigation, screen layouts, usage details, and wireframes for remote sessions |
+| [Git and release workflow (draft)](docs/git-workflow.md) | Branches, pull requests, platform checks, and releases |
+| [Engineering principles (discussion draft)](docs/CONSTITUTION.md) | Shared responsibilities, API permissions, and acceptance criteria |
+| [Working agreements for coding agents](AGENTS.md) | Repository conventions, verification, and collaboration |
 
-## 反馈与贡献
+## Feedback and contributions
 
-欢迎在 [GitHub Issues](https://github.com/AndyChen1024/magpie-mobile/issues) 报告问题或讨论功能。报告连接或用量问题时，请附上手机系统、Magpie 主机版本和复现步骤，并隐去网关密钥等敏感信息。
+Use GitHub Issues to report a problem or discuss a feature. For connection or usage problems, include your phone's OS version, the Magpie version on your host, and steps to reproduce the issue. Remove gateway keys and other sensitive information before posting. [GitHub Issues](https://github.com/AndyChen1024/magpie-mobile/issues)
 
-提交代码改动时，请在 PR 中说明受影响的平台和验证结果。[Git 工作流](docs/git-workflow.md#pr-验收与-github-门禁)
+When submitting a pull request, list the affected platforms and describe what you tested. [PR checks](docs/git-workflow.md#pr-验收与-github-门禁)
 
-## 远程会话的中继方案
+## Relay for remote sessions
 
-远程续聊的首轮内测计划由项目方在 Fly.io 上托管 Paseo Relay。中继负责在手机与用户主机之间转发端到端加密消息，任务由主机上的 Agent 执行。局域网用量查询直接连接 Magpie 网关。[Paseo Relay 开源项目](https://github.com/getpaseo/paseo-relay)
+For the first remote session preview, the project plans to host Paseo Relay on Fly.io. The relay will forward end-to-end encrypted messages between the phone and the user's host, where the agent executes tasks. Local usage queries go directly to the Magpie gateway. [Paseo Relay project](https://github.com/getpaseo/paseo-relay)
 
-## 许可证
+## License
 
-项目代码采用 [MIT 许可证](LICENSE)。随 Android 工程分发的 Gradle Wrapper 遵循 Apache-2.0，其许可声明保留在启动脚本和 Wrapper JAR 中。
+Magpie Mobile uses the MIT License. The Gradle Wrapper distributed with the Android project uses Apache-2.0. Its notices are in the launcher scripts and the Wrapper JAR. [MIT License](LICENSE)
 
-感谢 [Magpie](https://github.com/yetone/magpie) 及其贡献者。移动端沿用的上游资源保留了 [MIT 许可声明](magpie-android/app/src/main/assets/licenses/magpie.txt)。
+Thanks to Magpie and its contributors. The Android app includes the upstream MIT notice for the assets it uses. [Magpie](https://github.com/yetone/magpie) · [Upstream license notice](magpie-android/app/src/main/assets/licenses/magpie.txt)
