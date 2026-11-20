@@ -2,7 +2,7 @@
 
 # Magpie Mobile
 
-**English** · [Simplified Chinese](README.zh-CN.md)
+**English** · [简体中文](README.zh-CN.md)
 
 **Track agent requests, token usage, and costs on your Magpie gateway from your phone.**
 
