@@ -23,7 +23,8 @@ android {
         release {
             optimization {
                 enable = true
-                packageScope = setOf("androidx.**", "kotlin.**", "kotlinx.**")
+                // The stdlib's package-private CollectionsKt hierarchy must stay together.
+                packageScope = setOf("androidx.**", "kotlinx.**")
             }
         }
     }

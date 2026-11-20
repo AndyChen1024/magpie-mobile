@@ -28,11 +28,23 @@ jobs:
           distribution: temurin
           java-version: '25'
           cache: gradle
-      - name: Install the Android SDK platform
-        run: '"$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" "platforms;android-37.0"'
+      - name: Install the Android SDK platform and signing tools
+        run: '"$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" "platforms;android-37.0" "build-tools;36.0.0"'
       - name: Build both variants and test the app and shared module
         working-directory: magpie-android
         run: ./gradlew --no-daemon :app:assembleDebug :app:assembleRelease :app:testDebugUnitTest :shared:testAndroidHostTest
+      - name: Sign a test copy of the optimized APK and enable emulator acceleration
+        run: |
+          "$ANDROID_HOME/build-tools/36.0.0/apksigner" sign \
+            --ks "$HOME/.android/debug.keystore" --ks-pass pass:android \
+            --out "$RUNNER_TEMP/preview.apk" magpie-android/app/build/outputs/apk/release/app-release-unsigned.apk
+          sudo chmod a+rw /dev/kvm
+      - name: Launch the optimized app on Android 11
+        uses: reactivecircus/android-emulator-runner@a421e43855164a8197daf9d8d40fe71c6996bb0d # v2
+        with:
+          api-level: 30
+          arch: x86_64
+          script: bash .github/scripts/smoke_android.sh "$RUNNER_TEMP/preview.apk"
       - name: Preserve the unsigned release candidate for signing
         if: github.event_name == 'push'
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
