@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>移动端模块职责 · Magpie Mobile</title>
+  <style>
+    * { box-sizing: border-box; }
+    body { margin: 0; min-height: 100vh; display: grid; place-items: center; background: #F4F4F6; }
+    main { width: min(100%, 1120px); min-width: 0; }
+    .diagram-container { width: 100%; overflow-x: auto; }
+    svg { display: block; width: 100%; min-width: 960px; }
+    @media print {
+      .diagram-container { overflow-x: visible; }
+      svg { min-width: 0; }
+    }
+  </style>
+</head>
+<body>
+  <main aria-label="移动端模块职责">
+    <div class="diagram-container">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 600" role="img" aria-labelledby="module-responsibilities-title module-responsibilities-desc">
+        <title id="module-responsibilities-title">移动端模块职责</title>
+        <desc id="module-responsibilities-desc">原生界面提交操作，KMP 管理查询状态和协议，平台适配提供凭据和网络传输，主机返回授权范围内的数据。</desc>
+        <defs>
+          <marker id="flow" markerWidth="6" markerHeight="6" refX="5" refY="3" orient="auto">
+            <path d="M 0 0 L 5 3 L 0 6 Z" fill="#55555F" />
+          </marker>
+          <marker id="query" markerWidth="6" markerHeight="6" refX="5" refY="3" orient="auto">
+            <path d="M 0 0 L 5 3 L 0 6 Z" fill="#4F46E5" />
+          </marker>
+        </defs>
+        <rect x="0" y="0" width="960" height="600" fill="#F4F4F6" />
+        <text x="32" y="32" fill="#55555F" font-family="system-ui, -apple-system, &quot;PingFang SC&quot;, &quot;Microsoft YaHei&quot;, sans-serif" font-size="16" font-weight="600" text-anchor="start">Magpie Mobile</text>
+        <text x="30" y="82" fill="#1C1C21" font-family="&quot;Songti SC&quot;, &quot;Noto Serif CJK SC&quot;, &quot;STSong&quot;, serif" font-size="38" font-weight="600" text-anchor="start">移动端模块职责</text>
+        <text x="32" y="114" fill="#55555F" font-family="system-ui, -apple-system, &quot;PingFang SC&quot;, &quot;Microsoft YaHei&quot;, sans-serif" font-size="17" font-weight="400" text-anchor="start">沿一次时段切换，查看界面、共享代码与系统能力之间的分工。</text>
+        <text x="116" y="161" fill="#55555F" font-family="system-ui, -apple-system, &quot;PingFang SC&quot;, &quot;Microsoft YaHei&quot;, sans-serif" font-size="16" font-weight="600" text-anchor="start">层与归属</text>
+        <text x="360" y="161" fill="#55555F" font-family="system-ui, -apple-system, &quot;PingFang SC&quot;, &quot;Microsoft YaHei&quot;, sans-serif" font-size="16" font-weight="600" text-anchor="start">局域网用量</text>
+        <text x="682" y="161" fill="#55555F" font-family="system-ui, -apple-system, &quot;PingFang SC&quot;, &quot;Microsoft YaHei&quot;, sans-serif" font-size="16" font-weight="600" text-anchor="start">远程会话 · 规划</text>
+        <rect x="96" y="180" width="832" height="80" fill="#FFFFFF" rx="6" stroke="#D4D4DB" stroke-width="1" />
+        <text x="116" y="212" fill="#1C1C21" font-family="system-ui, -apple-system, &quot;PingFang SC&quot;, &quot;Microsoft YaHei&quot;, sans-serif" font-size="20" font-weight="600" text-anchor="start">原生界面</text>
+        <text x="116" y="239" fill="#55555F" font-family="ui-monospace, SFMono-Regular, Consolas, &quot;PingFang SC&quot;, monospace" font-size="15" font-weight="400" text-anchor="start">Compose / SwiftUI</text>
+        <text x="360" y="212" fill="#1C1C21" font-family="system-ui, -apple-system, &quot;PingFang SC&quot;, &quot;Microsoft YaHei&quot;, sans-serif" font-size="16" font-weight="400" text-anchor="start">接收时段选择与翻页操作</text>
+        <text x="360" y="238" fill="#55555F" font-family="system-ui, -apple-system, &quot;PingFang SC&quot;, &quot;Microsoft YaHei&quot;, sans-serif" font-size="16" font-weight="400" text-anchor="start">呈现概览、明细和错误状态</text>
+        <text x="682" y="212" fill="#1C1C21" font-family="system-ui, -apple-system, &quot;PingFang SC&quot;, &quot;Microsoft YaHei&quot;, sans-serif" font-size="16" font-weight="400" text-anchor="start">显示会话时间线</text>
+        <text x="682" y="238" fill="#55555F" font-family="system-ui, -apple-system, &quot;PingFang SC&quot;, &quot;Microsoft YaHei&quot;, sans-serif" font-size="16" font-weight="400" text-anchor="start">接收追问与审批选择</text>
+        <rect x="96" y="266" width="832" height="80" fill="#EEEDFD" rx="6" stroke="#4F46E5" stroke-width="1" />
+        <text x="116" y="298" fill="#1C1C21" font-family="system-ui, -apple-system, &quot;PingFang SC&quot;, &quot;Microsoft YaHei&quot;, sans-serif" font-size="20" font-weight="600" text-anchor="start">共享状态</text>
+        <text x="116" y="325" fill="#55555F" font-family="ui-monospace, SFMono-Regular, Consolas, &quot;PingFang SC&quot;, monospace" font-size="15" font-weight="400" text-anchor="start">KMP · UsageController</text>
+        <text x="360" y="298" fill="#1C1C21" font-family="system-ui, -apple-system, &quot;PingFang SC&quot;, &quot;Microsoft YaHei&quot;, sans-serif" font-size="16" font-weight="400" text-anchor="start">维护主机、时段与分页状态</text>
+        <text x="360" y="324" fill="#55555F" font-family="system-ui, -apple-system, &quot;PingFang SC&quot;, &quot;Microsoft YaHei&quot;, sans-serif" font-size="16" font-weight="400" text-anchor="start">切换查询后丢弃过期响应</text>
+        <text x="682" y="298" fill="#1C1C21" font-family="system-ui, -apple-system, &quot;PingFang SC&quot;, &quot;Microsoft YaHei&quot;, sans-serif" font-size="16" font-weight="400" text-anchor="start">跟踪消息送达与重连状态</text>
+        <text x="682" y="324" fill="#55555F" font-family="system-ui, -apple-system, &quot;PingFang SC&quot;, &quot;Microsoft YaHei&quot;, sans-serif" font-size="16" font-weight="400" text-anchor="start">记录待审批操作</text>
+        <rect x="96" y="352" width="832" height="80" fill="#FFFFFF" rx="6" stroke="#D4D4DB" stroke-width="1" />
+        <text x="116" y="384" fill="#1C1C21" font-family="system-ui, -apple-system, &quot;PingFang SC&quot;, &quot;Microsoft YaHei&quot;, sans-serif" font-size="20" font-weight="600" text-anchor="start">数据访问与协议</text>
+        <text x="116" y="411" fill="#55555F" font-family="ui-monospace, SFMono-Regular, Consolas, &quot;PingFang SC&quot;, monospace" font-size="15" font-weight="400" text-anchor="start">KMP · :shared</text>
+        <text x="360" y="384" fill="#1C1C21" font-family="system-ui, -apple-system, &quot;PingFang SC&quot;, &quot;Microsoft YaHei&quot;, sans-serif" font-size="16" font-weight="400" text-anchor="start">构造用量请求，解析主机响应</text>
+        <text x="360" y="410" fill="#55555F" font-family="system-ui, -apple-system, &quot;PingFang SC&quot;, &quot;Microsoft YaHei&quot;, sans-serif" font-size="16" font-weight="400" text-anchor="start">区分权限受限、空数据和失败</text>
+        <text x="682" y="384" fill="#1C1C21" font-family="system-ui, -apple-system, &quot;PingFang SC&quot;, &quot;Microsoft YaHei&quot;, sans-serif" font-size="16" font-weight="400" text-anchor="start">配对、加密与重连协议</text>
+        <text x="682" y="410" fill="#55555F" font-family="system-ui, -apple-system, &quot;PingFang SC&quot;, &quot;Microsoft YaHei&quot;, sans-serif" font-size="16" font-weight="400" text-anchor="start">处理会话指令与事件</text>
+        <rect x="96" y="438" width="832" height="80" fill="#FFFFFF" rx="6" stroke="#D4D4DB" stroke-width="1" />
+        <text x="116" y="470" fill="#1C1C21" font-family="system-ui, -apple-system, &quot;PingFang SC&quot;, &quot;Microsoft YaHei&quot;, sans-serif" font-size="20" font-weight="600" text-anchor="start">平台适配</text>
+        <text x="116" y="497" fill="#55555F" font-family="ui-monospace, SFMono-Regular, Consolas, &quot;PingFang SC&quot;, monospace" font-size="15" font-weight="400" text-anchor="start">Android / iOS</text>
+        <text x="360" y="470" fill="#1C1C21" font-family="system-ui, -apple-system, &quot;PingFang SC&quot;, &quot;Microsoft YaHei&quot;, sans-serif" font-size="16" font-weight="400" text-anchor="start">按主机读取凭据，执行 HTTPS</text>
+        <text x="360" y="496" fill="#55555F" font-family="system-ui, -apple-system, &quot;PingFang SC&quot;, &quot;Microsoft YaHei&quot;, sans-serif" font-size="16" font-weight="400" text-anchor="start">校验证书，拒绝重定向</text>
+        <text x="682" y="470" fill="#1C1C21" font-family="system-ui, -apple-system, &quot;PingFang SC&quot;, &quot;Microsoft YaHei&quot;, sans-serif" font-size="16" font-weight="400" text-anchor="start">提供扫码、前后台事件</text>
+        <text x="682" y="496" fill="#55555F" font-family="system-ui, -apple-system, &quot;PingFang SC&quot;, &quot;Microsoft YaHei&quot;, sans-serif" font-size="16" font-weight="400" text-anchor="start">保存草稿与恢复信息</text>
+        <text x="40" y="174" fill="#55555F" font-family="system-ui, -apple-system, &quot;PingFang SC&quot;, &quot;Microsoft YaHei&quot;, sans-serif" font-size="14" font-weight="600" text-anchor="middle">操作</text>
+        <text x="78" y="174" fill="#55555F" font-family="system-ui, -apple-system, &quot;PingFang SC&quot;, &quot;Microsoft YaHei&quot;, sans-serif" font-size="14" font-weight="600" text-anchor="middle">状态</text>
+        <path d="M 44 196 V 496" fill="none" stroke="#55555F" stroke-width="2" marker-end="url(#flow)" />
+        <path d="M 76 496 V 196" fill="none" stroke="#55555F" stroke-width="2" marker-end="url(#flow)" />
+        <rect x="32" y="540" width="896" height="1" fill="#D4D4DB" />
+        <text x="32" y="574" fill="#1C1C21" font-family="system-ui, -apple-system, &quot;PingFang SC&quot;, &quot;Microsoft YaHei&quot;, sans-serif" font-size="16" font-weight="600" text-anchor="start">主机边界</text>
+        <text x="132" y="574" fill="#55555F" font-family="system-ui, -apple-system, &quot;PingFang SC&quot;, &quot;Microsoft YaHei&quot;, sans-serif" font-size="16" font-weight="400" text-anchor="start">Magpie 在主机上汇总用量并限制可见数据，手机按返回的授权范围展示。</text>
+      </svg>
+    </div>
+  </main>
+</body>
+</html>
