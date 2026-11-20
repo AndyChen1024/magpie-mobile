@@ -6,13 +6,13 @@
 
 面向 [Magpie](https://github.com/yetone/magpie) 用户的独立 Android 和 iOS 开源客户端。
 
-**[从源码运行](#本地开发)** · **[工程文档](#工程文档)** · **[问题反馈](https://github.com/AndyChen1024/magpie-mobile/issues)**
+**[下载 Android 内测 APK](https://github.com/AndyChen1024/magpie-mobile/releases)** · **[从源码运行](#本地开发)** · **[工程文档](#工程文档)** · **[问题反馈](https://github.com/AndyChen1024/magpie-mobile/issues)**
 
 </div>
 
 ## 当前进度
 
-项目处于早期开发阶段，现阶段可从源码体验。
+项目处于早期开发阶段。Android 9 或更新版本可在 GitHub Releases 的预发布条目中下载 APK，安装后打开 **更多 → 用量 → 查看演示数据** 即可体验。iOS 可从源码运行。
 
 | 平台 | 当前实现 |
 | --- | --- |
