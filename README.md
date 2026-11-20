@@ -2,7 +2,7 @@
 
 # Magpie Mobile
 
-**English** · [简体中文](README.zh-CN.md)
+**English** · [Simplified Chinese](README.zh-CN.md)
 
 **Track agent requests, token usage, and costs on your Magpie gateway from your phone.**
 
@@ -14,7 +14,7 @@ Independent, open-source Android and iOS clients for [Magpie](https://github.com
 
 ## Project status
 
-Magpie Mobile is in early development. On Android 9 or later, download the APK from a GitHub prerelease. To try it without a gateway, open **更多 → 用量 → 查看演示数据** (More → Usage → View demo data). You can build the iOS app from source.
+Magpie Mobile is in early development. On Android 9 or later, install the preview APK from GitHub Releases. You can try the offline demo before connecting a gateway. On iOS, build the app from source.
 
 | Platform | Available today |
 | --- | --- |
@@ -30,15 +30,17 @@ Clone the repository and check out the branch you want to try.
 
 ### View gateway usage on Android
 
-1. Open **更多 → 用量** (More → Usage). Choose **查看演示数据** (View demo data) to explore the screens offline.
+The Android `0.1.0-alpha.1` preview displays its menus in Chinese. The steps below use English names.
+
+1. Open **More** at the bottom right and select **Usage**. Choose **View demo data** to explore the screens offline.
 2. To see your own usage, enable LAN sharing on the computer running Magpie. You need a gateway key and an HTTPS address reachable from your phone. The app must trust the gateway certificate, and the certificate must match the address you enter. [Magpie LAN sharing guide](https://github.com/yetone/magpie/blob/426a707a19ff7f481989f03c49519bf4dba1e593/docs/integrating.md#L50)
-3. Connect your phone and the host to the same local network. Under **用量 → 连接主机** (Usage → Connect to host), enter the address and gateway key. Once connected, select a time range to view totals or browse individual requests.
+3. Connect your phone and the host to the same local network. On the **Usage** screen, choose **Connect to host** and enter the address and gateway key. Once connected, select a time range to view totals or browse individual requests.
 
 ## Project documentation
 
-The engineering documents and diagrams below are in Simplified Chinese.
+[![The mobile app reads usage directly from the local Magpie gateway. In the planned remote session flow, a relay forwards encrypted messages to the user's host, where the agent runs.](docs/diagrams/system-architecture-en.png)](docs/diagrams/system-architecture-en.png)
 
-[![The mobile app reads usage directly from the local Magpie gateway. In the planned remote session flow, a relay forwards encrypted messages to the user's host, where the agent runs.](docs/diagrams/system-architecture.png)](docs/architecture.md)
+The engineering guides listed below are in Simplified Chinese.
 
 | Document | What it covers |
 | --- | --- |
@@ -54,7 +56,7 @@ The engineering documents and diagrams below are in Simplified Chinese.
 
 Use GitHub Issues to report a problem or discuss a feature. For connection or usage problems, include your phone's OS version, the Magpie version on your host, and steps to reproduce the issue. Remove gateway keys and other sensitive information before posting. [GitHub Issues](https://github.com/AndyChen1024/magpie-mobile/issues)
 
-When submitting a pull request, list the affected platforms and describe what you tested. [PR checks](docs/git-workflow.md#pr-验收与-github-门禁)
+When submitting a pull request, list the affected platforms and describe what you tested. [Git and release workflow (Simplified Chinese)](docs/git-workflow.md)
 
 ## Relay for remote sessions
 
