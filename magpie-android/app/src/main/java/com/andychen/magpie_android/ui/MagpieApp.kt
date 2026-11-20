@@ -78,7 +78,11 @@ private val mainPages = listOf(Page.Agents, Page.Sessions, Page.Library, Page.Pr
 private val overflowPages = listOf(Page.Routing, Page.Gateway, Page.Usage, Page.Masking, Page.Plugins)
 
 @Composable
-internal fun MagpieApp(theme: ThemeMode, onThemeChange: (ThemeMode) -> Unit) {
+internal fun MagpieApp(
+    theme: ThemeMode,
+    onThemeChange: (ThemeMode) -> Unit,
+    usageContent: @Composable () -> Unit
+) {
     var page by rememberSaveable { mutableStateOf(Page.Agents) }
     var previousPage by rememberSaveable { mutableStateOf(Page.Agents) }
     val pageStates = rememberSaveableStateHolder()
@@ -108,6 +112,10 @@ internal fun MagpieApp(theme: ThemeMode, onThemeChange: (ThemeMode) -> Unit) {
             contentAlignment = Alignment.TopCenter
         ) {
             pageStates.SaveableStateProvider(page.name) {
+                if (page == Page.Usage) {
+                    Box(Modifier.widthIn(max = 640.dp).fillMaxSize()) { usageContent() }
+                    return@SaveableStateProvider
+                }
                 Column(
                     modifier = Modifier
                         .widthIn(max = 640.dp)
@@ -121,7 +129,7 @@ internal fun MagpieApp(theme: ThemeMode, onThemeChange: (ThemeMode) -> Unit) {
                         Page.Sessions -> SessionsScreen()
                         Page.Library -> LibraryScreen()
                         Page.Providers -> ProvidersScreen()
-                        Page.Usage -> UsageScreen()
+                        Page.Usage -> Unit
                         Page.Settings -> SettingsScreen(theme, onThemeChange)
                         else -> {
                             SectionLabel(stringResource(page.title))
@@ -156,11 +164,13 @@ private fun MagpieHeader(page: Page, onSettings: () -> Unit, onBack: () -> Unit)
             Text("magpie", style = MaterialTheme.typography.titleLarge)
         }
         Box(Modifier.weight(1f), contentAlignment = Alignment.CenterEnd) {
-            Text(
-                stringResource(R.string.demo_data),
-                style = MaterialTheme.typography.bodySmall,
-                color = colors.onSurfaceVariant
-            )
+            if (page != Page.Usage && page != Page.Settings) {
+                Text(
+                    stringResource(R.string.demo_data),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = colors.onSurfaceVariant
+                )
+            }
         }
         if (page != Page.Settings) {
             IconButton(onClick = onSettings) {
@@ -275,6 +285,6 @@ private fun SettingsScreen(theme: ThemeMode, onThemeChange: (ThemeMode) -> Unit)
 @Composable
 private fun MagpieAppPreview() {
     MagpieTheme(ThemeMode.Light) {
-        MagpieApp(ThemeMode.Light, onThemeChange = {})
+        MagpieApp(ThemeMode.Light, onThemeChange = {}) { UsageScreen() }
     }
 }
