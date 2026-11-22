@@ -48,7 +48,7 @@ The engineering guides listed below are in Simplified Chinese.
 | [Kotlin Multiplatform shared module](shared/README.md) | Usage queries, pagination, builds, tests, and Swift integration |
 | [Mobile architecture](docs/architecture.md) | System boundaries, native app structure, shared components, and the flow of usage data |
 | [Mobile UI design](docs/mobile-ui.md) | Navigation, screen layouts, usage details, and wireframes for remote sessions |
-| [Git and release workflow (draft)](docs/git-workflow.md) | Branches, pull requests, platform checks, and releases |
+| [Git and release workflow](docs/git-workflow.md) | Upstream Magpie practices, integration on main, platform checks, and releases |
 | [Engineering principles (discussion draft)](docs/CONSTITUTION.md) | Shared responsibilities, API permissions, and acceptance criteria |
 | [Working agreements for coding agents](AGENTS.md) | Repository conventions, verification, and collaboration |
 
@@ -56,7 +56,7 @@ The engineering guides listed below are in Simplified Chinese.
 
 Use GitHub Issues to report a problem or discuss a feature. For connection or usage problems, include your phone's OS version, the Magpie version on your host, and steps to reproduce the issue. Remove gateway keys and other sensitive information before posting. [GitHub Issues](https://github.com/AndyChen1024/magpie-mobile/issues)
 
-When submitting a pull request, list the affected platforms and describe what you tested. [Git and release workflow (Simplified Chinese)](docs/git-workflow.md)
+In the commit body, list the affected platforms and describe what you tested. If you open a pull request, identify the commit you verified. [Git and release workflow (Simplified Chinese)](docs/git-workflow.md)
 
 ## Relay for remote sessions
 

@@ -44,7 +44,7 @@
 | [Kotlin Multiplatform 共享模块](shared/README.md) | 用量查询、分页、构建测试和 Swift 接入 |
 | [移动端工程架构](docs/architecture.md) | 系统边界、双端工程结构、KMP 组件调用与用量数据流 |
 | [移动端 UI 设计](docs/mobile-ui.md) | 页面地图、手机布局、用量详情与远程会话扩展线框 |
-| [Git 工作流与发布规范（设计稿）](docs/git-workflow.md) | 分支、PR、双端验收和发版流程 |
+| [Git 工作流与发布规范](docs/git-workflow.md) | Magpie 上游实践、主干集成、双端验收和发布 |
 | [工程原则（讨论稿）](docs/CONSTITUTION.md) | 跨端职责、接口权限和验收原则 |
 | [Agent 工作约定](AGENTS.md) | 仓库改动、验证和协作约定 |
 
@@ -52,7 +52,7 @@
 
 欢迎在 [GitHub Issues](https://github.com/AndyChen1024/magpie-mobile/issues) 报告问题或讨论功能。报告连接或用量问题时，请附上手机系统、Magpie 主机版本和复现步骤，并隐去网关密钥等敏感信息。
 
-提交代码改动时，请在 PR 中说明受影响的平台和验证结果。[Git 工作流](docs/git-workflow.md#pr-验收与-github-门禁)
+提交代码改动时，在提交正文记录受影响的平台和验证结果。使用 PR 时，注明验证过的提交。[Git 工作流](docs/git-workflow.md#pr-验收与-github-门禁)
 
 ## 远程会话的中继方案
 
