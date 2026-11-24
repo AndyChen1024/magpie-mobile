@@ -60,6 +60,7 @@ struct UsagePage: View {
                 showsConnection = true
             } label: {
                 Label("Connection Settings", systemImage: "gearshape")
+                    .foregroundStyle(theme.background)
             }
             .buttonStyle(.borderedProminent)
             .controlSize(.large)
