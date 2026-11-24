@@ -14,6 +14,8 @@
 2. 连接表单采用安全输入，凭据以 Android Keystore 保护的加密存储持久化，排除凭据备份。断开并清除连接时删除对应条目。证书校验使用目标主机及应用信任链。用真实设备检查目标证书链能否被应用信任。
 3. 现有应用 `targetSdk=37`，主清单尚未声明网络权限。接入时声明 `INTERNET`。对于本稿采用的手动直连，在 Android 17 及以上声明并按运行时规则申请 `ACCESS_LOCAL_NETWORK`，旧系统按对应平台规则处理。拒绝、撤销以及返回设置后的重试需要分别验证。[Android 本地网络权限](https://developer.android.com/privacy-and-security/local-network-permission)
 
+如果 Mac 使用 Magpie 内置 CA，在 Magpie 的网络与共享设置中导出 `magpie-ca.crt`，将文件传到 Android，再从用量页的连接表单选择「导入 CA」。App 将该 CA 与网关的 HTTPS 地址和密钥一起保存，并校验证书链和主机名。没有选择 CA 时仍使用 Android 默认的信任设置。
+
 ## 验证与交付
 
 在 `magpie-android/` 运行已有入口。设备测试命令需要已连接的模拟器或测试设备。

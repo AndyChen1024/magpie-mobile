@@ -7,13 +7,16 @@ import android.os.Build
 import com.andychen.magpie.shared.usage.UsageFailure
 import com.andychen.magpie.shared.usage.UsageHttpRequest
 import com.andychen.magpie.shared.usage.UsageHttpResponse
+import com.andychen.magpie.shared.usage.UsageOrigin
 import com.andychen.magpie.shared.usage.UsageTransport
 import java.io.ByteArrayOutputStream
 import java.io.IOException
 import java.io.InputStream
 import java.net.URI
+import java.security.GeneralSecurityException
 import javax.net.ssl.HttpsURLConnection
 import javax.net.ssl.SSLException
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
@@ -21,16 +24,32 @@ internal fun hasLocalNetworkPermission(context: Context): Boolean =
     Build.VERSION.SDK_INT < 37 || context.checkSelfPermission(Manifest.permission.ACCESS_LOCAL_NETWORK) ==
         PackageManager.PERMISSION_GRANTED
 
-internal class AndroidUsageTransport(private val context: Context) : UsageTransport {
+internal class AndroidUsageTransport(
+    private val context: Context,
+    private val store: UsageConnectionStore
+) : UsageTransport {
     override suspend fun get(request: UsageHttpRequest): UsageHttpResponse = withContext(Dispatchers.IO) {
         if (!hasLocalNetworkPermission(context)) {
             return@withContext UsageHttpResponse(0, "", UsageFailure.LOCAL_PERMISSION)
         }
 
-        val connection = URI(request.url).toURL().openConnection() as HttpsURLConnection
+        val url = URI(request.url)
+        val origin = UsageOrigin.parse("${url.scheme}://${url.rawAuthority}") ?: return@withContext credentialFailure()
+        val saved = try {
+            store.readConnection(origin)
+        } catch (error: CancellationException) {
+            throw error
+        } catch (_: Exception) {
+            return@withContext credentialFailure()
+        }
+        if (saved == null || request.authorization != "Bearer ${saved.key}") {
+            return@withContext credentialFailure()
+        }
+        val connection = url.toURL().openConnection() as HttpsURLConnection
         try {
             connection.instanceFollowRedirects = false
             connection.useCaches = false
+            saved.certificate?.let { connection.sslSocketFactory = usageSocketFactory(it) }
             connection.connectTimeout = 8_000
             connection.readTimeout = 12_000
             connection.requestMethod = "GET"
@@ -48,6 +67,8 @@ internal class AndroidUsageTransport(private val context: Context) : UsageTransp
             }
         } catch (_: SSLException) {
             UsageHttpResponse(0, "", UsageFailure.TLS)
+        } catch (_: GeneralSecurityException) {
+            UsageHttpResponse(0, "", UsageFailure.TLS)
         } catch (_: SecurityException) {
             networkFailure()
         } catch (_: IOException) {
@@ -56,6 +77,8 @@ internal class AndroidUsageTransport(private val context: Context) : UsageTransp
             connection.disconnect()
         }
     }
+
+    private fun credentialFailure() = UsageHttpResponse(0, "", UsageFailure.CREDENTIAL)
 
     private fun networkFailure() = UsageHttpResponse(
         0, "", if (hasLocalNetworkPermission(context)) UsageFailure.NETWORK else UsageFailure.LOCAL_PERMISSION

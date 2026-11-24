@@ -9,6 +9,7 @@ import com.andychen.magpie.shared.usage.UsageOrigin
 import com.andychen.magpie.shared.usage.UsagePeriod
 import com.andychen.magpie.shared.usage.UsageState
 import com.andychen.magpie.shared.usage.UsageTab
+import java.security.cert.X509Certificate
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -18,13 +19,14 @@ import kotlinx.coroutines.launch
 internal data class LanUsageState(
     val usage: UsageState = UsageState(),
     val working: Boolean = true,
-    val storageError: Boolean = false
+    val storageError: Boolean = false,
+    val hasCustomCertificate: Boolean = false
 )
 
 internal class LanUsageViewModel(application: Application, private val saved: SavedStateHandle) :
     AndroidViewModel(application) {
     private val store = UsageConnectionStore(application)
-    private val controller = UsageController(AndroidUsageTransport(application), store)
+    private val controller = UsageController(AndroidUsageTransport(application, store), store)
     private val mutable = MutableStateFlow(LanUsageState())
     val state = mutable.asStateFlow()
     private var started = false
@@ -41,17 +43,19 @@ internal class LanUsageViewModel(application: Application, private val saved: Sa
         if (started) return
         started = true
         changeConnection {
-            val origin = store.savedOrigin() ?: return@changeConnection
+            val connection = store.savedConnection() ?: return@changeConnection
+            mutable.update { it.copy(hasCustomCertificate = connection.certificate != null) }
             val period = UsagePeriod.entries.firstOrNull { it.name == saved.get<String>("usagePeriod") }
             val tab = UsageTab.entries.firstOrNull { it.name == saved.get<String>("usageTab") }
-            controller.restore(origin, period ?: UsagePeriod.TODAY, tab ?: UsageTab.OVERVIEW)
+            controller.restore(connection.origin, period ?: UsagePeriod.TODAY, tab ?: UsageTab.OVERVIEW)
         }
     }
 
-    fun connect(origin: UsageOrigin, key: String) {
+    fun connect(origin: UsageOrigin, key: String, certificate: X509Certificate?, keepSavedCertificate: Boolean) {
         if (state.value.working) return
         changeConnection {
-            store.save(origin, key)
+            val hasCertificate = store.save(origin, key, certificate, keepSavedCertificate)
+            mutable.update { it.copy(hasCustomCertificate = hasCertificate) }
             controller.connect(origin)
         }
     }
@@ -60,6 +64,7 @@ internal class LanUsageViewModel(application: Application, private val saved: Sa
         if (state.value.working) return
         changeConnection {
             store.clear()
+            mutable.update { it.copy(hasCustomCertificate = false) }
             controller.disconnect()
             saved.remove<String>("usagePeriod")
             saved.remove<String>("usageTab")

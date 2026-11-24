@@ -25,6 +25,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -40,13 +41,18 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.andychen.magpie.shared.usage.UsageOrigin
 import com.andychen.magpie_android.R
 import com.andychen.magpie_android.ui.UsageScreen
+import java.security.cert.X509Certificate
+import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 @Composable
 internal fun LanUsageRoute(viewModel: LanUsageViewModel) {
     val context = LocalContext.current
     val state by viewModel.state.collectAsStateWithLifecycle()
     var demo by rememberSaveable { mutableStateOf(false) }
-    var editing by remember { mutableStateOf(false) }
+    var editing by rememberSaveable { mutableStateOf(false) }
     var confirmingDisconnect by remember { mutableStateOf(false) }
     val permission = rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) { granted ->
         if (granted) viewModel.retry()
@@ -89,10 +95,11 @@ internal fun LanUsageRoute(viewModel: LanUsageViewModel) {
 
     if (editing) {
         ConnectionDialog(
-            initialAddress = state.usage.origin?.value.orEmpty(),
+            initialOrigin = state.usage.origin,
+            hasSavedCertificate = state.hasCustomCertificate,
             onDismiss = { editing = false },
-            onConnect = { origin, key ->
-                viewModel.connect(origin, key)
+            onConnect = { origin, key, certificate, keepSavedCertificate ->
+                viewModel.connect(origin, key, certificate, keepSavedCertificate)
                 editing = false
                 if (!hasLocalNetworkPermission(context)) {
                     permission.launch(Manifest.permission.ACCESS_LOCAL_NETWORK)
@@ -121,16 +128,44 @@ internal fun LanUsageRoute(viewModel: LanUsageViewModel) {
 
 @Composable
 private fun ConnectionDialog(
-    initialAddress: String,
+    initialOrigin: UsageOrigin?,
+    hasSavedCertificate: Boolean,
     onDismiss: () -> Unit,
-    onConnect: (UsageOrigin, String) -> Unit
+    onConnect: (UsageOrigin, String, X509Certificate?, Boolean) -> Unit
 ) {
-    var address by remember { mutableStateOf(initialAddress) }
+    val context = LocalContext.current
+    val scope = rememberCoroutineScope()
+    var address by rememberSaveable { mutableStateOf(initialOrigin?.value.orEmpty()) }
     var key by remember { mutableStateOf("") }
     var attempted by remember { mutableStateOf(false) }
+    var selectedCertificate by remember { mutableStateOf<X509Certificate?>(null) }
+    var retainSavedCertificate by remember { mutableStateOf(hasSavedCertificate) }
+    var readingCertificate by remember { mutableStateOf(false) }
+    var certificateError by remember { mutableStateOf(false) }
     val origin = UsageOrigin.parse(address)
+    val keepsCertificate = retainSavedCertificate && origin == initialOrigin
     val trimmedKey = key.trim()
     val keyValid = trimmedKey.length in 1..4096 && trimmedKey.all { it.code in 33..126 }
+    val selectCertificate = rememberLauncherForActivityResult(ActivityResultContracts.OpenDocument()) { uri ->
+        if (uri != null) {
+            readingCertificate = true
+            scope.launch {
+                try {
+                    selectedCertificate = withContext(Dispatchers.IO) {
+                        context.contentResolver.openInputStream(uri)?.use(::readUsageCertificate)
+                            ?: error("Could not open certificate")
+                    }
+                    certificateError = false
+                } catch (error: CancellationException) {
+                    throw error
+                } catch (_: Exception) {
+                    certificateError = true
+                } finally {
+                    readingCertificate = false
+                }
+            }
+        }
+    }
     AlertDialog(
         onDismissRequest = onDismiss,
         properties = DialogProperties(securePolicy = SecureFlagPolicy.SecureOn),
@@ -167,13 +202,37 @@ private fun ConnectionDialog(
                         { Text(stringResource(R.string.usage_invalid_key)) }
                     } else null
                 )
+                Text(stringResource(R.string.usage_ca_hint), style = MaterialTheme.typography.bodySmall)
+                if (selectedCertificate != null || keepsCertificate) {
+                    Text(stringResource(R.string.usage_ca_selected), style = MaterialTheme.typography.bodySmall)
+                }
+                Row {
+                    TextButton(onClick = { selectCertificate.launch(arrayOf("*/*")) }, enabled = !readingCertificate) {
+                        Text(stringResource(R.string.usage_ca_import))
+                    }
+                    if (selectedCertificate != null || keepsCertificate || certificateError) {
+                        TextButton(onClick = {
+                            selectedCertificate = null
+                            retainSavedCertificate = false
+                            certificateError = false
+                        }, enabled = !readingCertificate) {
+                            Text(stringResource(R.string.usage_ca_remove))
+                        }
+                    }
+                }
+                if (certificateError) {
+                    Text(stringResource(R.string.usage_ca_invalid), color = MaterialTheme.colorScheme.error)
+                }
             }
         },
         confirmButton = {
-            TextButton(onClick = {
-                attempted = true
-                if (origin != null && keyValid) onConnect(origin, trimmedKey)
-            }) { Text(stringResource(R.string.usage_connect)) }
+            TextButton(
+                onClick = {
+                    attempted = true
+                    if (origin != null && keyValid) onConnect(origin, trimmedKey, selectedCertificate, keepsCertificate)
+                },
+                enabled = !readingCertificate && !certificateError
+            ) { Text(stringResource(R.string.usage_connect)) }
         },
         dismissButton = {
             TextButton(onClick = onDismiss) { Text(stringResource(R.string.usage_cancel)) }

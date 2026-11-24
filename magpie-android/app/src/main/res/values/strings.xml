@@ -85,6 +85,11 @@
     <string name="usage_key">网关密钥</string>
     <string name="usage_invalid_address">请输入有效的 HTTPS 地址，路径可留空或填写 /v1。</string>
     <string name="usage_invalid_key">请输入有效的网关密钥。</string>
+    <string name="usage_ca_hint">如果 Mac 使用内置 HTTPS，请导入从该 Mac 导出的 CA 证书。证书仅用于此网关地址。</string>
+    <string name="usage_ca_import">导入 CA</string>
+    <string name="usage_ca_remove">清除 CA 选择</string>
+    <string name="usage_ca_selected">已选择自定义 CA</string>
+    <string name="usage_ca_invalid">无法读取有效的 CA 证书。请选择由 Mac 导出的 magpie-ca.crt。</string>
     <string name="usage_edit">更改连接</string>
     <string name="usage_disconnect">断开并清除</string>
     <string name="usage_disconnect_confirm">断开此主机并删除已保存的网关密钥？</string>
