@@ -25,6 +25,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.semantics
@@ -42,12 +43,11 @@ import com.andychen.magpie_android.ui.InfoRow
 import com.andychen.magpie_android.ui.MagpieDivider
 import com.andychen.magpie_android.ui.MagpiePanel
 import com.andychen.magpie_android.ui.Segments
-import java.text.NumberFormat
+import com.andychen.magpie_android.ui.UsageFormats
+import com.andychen.magpie_android.ui.rememberUsageFormats
 import java.time.OffsetDateTime
 import java.time.ZoneId
-import java.time.format.DateTimeFormatter
 import java.time.format.DateTimeParseException
-import java.util.Locale
 
 @Composable
 internal fun LanUsagePage(
@@ -63,6 +63,7 @@ internal fun LanUsagePage(
     onPermissionSettings: () -> Unit
 ) {
     val usage = state.usage
+    val formats = rememberUsageFormats()
     val origin = usage.origin
     key(origin, usage.period, usage.tab) {
         var detail by remember { mutableStateOf<UsageRow?>(null) }
@@ -122,7 +123,7 @@ internal fun LanUsagePage(
                         UsagePhase.IDLE, UsagePhase.LOADING -> UsageLoading()
                         UsagePhase.EMPTY -> EmptyPanel(stringResource(R.string.usage_empty))
                         UsagePhase.ERROR -> UsageError(summary.failure, onRetry, onPermissionSettings)
-                        UsagePhase.READY -> summary.value?.let { SummaryPanel(it) }
+                        UsagePhase.READY -> summary.value?.let { SummaryPanel(it, formats) }
                     }
                 }
                 UsageTab.REQUESTS -> {
@@ -140,7 +141,7 @@ internal fun LanUsagePage(
                                     InfoRow(
                                         title = row.model ?: stringResource(R.string.usage_unavailable_value),
                                         subtitle = listOf(row.agent ?: stringResource(R.string.usage_unavailable_value),
-                                            formatTime(row.timestamp)).joinToString(" · "),
+                                            formatTime(row.timestamp, formats)).joinToString(" · "),
                                         trailing = statusLabel(row),
                                         onClick = { detail = row }
                                     )
@@ -162,11 +163,11 @@ internal fun LanUsagePage(
         }
         detail?.let { row ->
             InfoDialog(stringResource(R.string.request_detail), onDismiss = { detail = null }) {
-                DetailLine(R.string.request_time, formatTime(row.timestamp))
+                DetailLine(R.string.request_time, formatTime(row.timestamp, formats))
                 DetailLine(R.string.agents, row.agent ?: stringResource(R.string.usage_unavailable_value))
                 DetailLine(R.string.model, row.model ?: stringResource(R.string.usage_unavailable_value))
                 DetailLine(R.string.request_status, statusLabel(row))
-                DetailLine(R.string.request_cost, row.costUsd?.let(::usd) ?: stringResource(R.string.usage_price_unknown))
+                DetailLine(R.string.request_cost, row.costUsd?.let(formats::usd) ?: stringResource(R.string.usage_price_unknown))
             }
         }
     }
@@ -195,20 +196,23 @@ private fun RangeControls(period: UsagePeriod, onPeriod: (UsagePeriod) -> Unit, 
 }
 
 @Composable
-private fun SummaryPanel(value: UsageSummary) {
+private fun SummaryPanel(value: UsageSummary, formats: UsageFormats) {
     MagpiePanel {
         Column(Modifier.padding(14.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
-            DetailLine(R.string.usage_call_count, value.calls.toString())
-            DetailLine(R.string.usage_error_count, value.errors.toString())
+            DetailLine(R.string.usage_call_count, formats.count(value.calls))
+            DetailLine(R.string.usage_error_count, formats.count(value.errors))
             MagpieDivider()
-            DetailLine(R.string.token, value.tokens.toString())
-            DetailLine(R.string.input_tokens, value.input.toString())
-            DetailLine(R.string.output_tokens, value.output.toString())
+            DetailLine(R.string.token, formats.count(value.tokens))
+            DetailLine(R.string.input_tokens, formats.count(value.input))
+            DetailLine(R.string.output_tokens, formats.count(value.output))
             MagpieDivider()
-            DetailLine(R.string.usage_known_cost, usd(value.costUsd))
+            DetailLine(R.string.usage_known_cost, formats.usd(value.costUsd))
             if (value.unpriced > 0) {
-                Text(stringResource(R.string.usage_unpriced_count, value.unpriced),
-                    color = MaterialTheme.colorScheme.onSurfaceVariant)
+                val quantity = value.unpriced.coerceAtMost(Int.MAX_VALUE.toLong()).toInt()
+                Text(
+                    pluralStringResource(R.plurals.usage_unpriced_count, quantity, value.unpriced),
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
             }
         }
     }
@@ -268,15 +272,8 @@ private val UsageFailure?.label: Int get() = when (this) {
     UsageFailure.SERVER, null -> R.string.usage_server_error
 }
 
-private fun usd(value: Double): String = NumberFormat.getCurrencyInstance(Locale.US).run {
-    maximumFractionDigits = 10
-    format(value)
-}
-
-private val displayTime = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss", Locale.ROOT)
-
-private fun formatTime(timestamp: String): String = try {
-    OffsetDateTime.parse(timestamp).atZoneSameInstant(ZoneId.systemDefault()).format(displayTime)
+private fun formatTime(timestamp: String, formats: UsageFormats): String = try {
+    formats.dateTime(OffsetDateTime.parse(timestamp).atZoneSameInstant(ZoneId.systemDefault()))
 } catch (_: DateTimeParseException) {
     timestamp
 }

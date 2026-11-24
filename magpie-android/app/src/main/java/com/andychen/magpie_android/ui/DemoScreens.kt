@@ -152,7 +152,7 @@ private fun AgentRow(
                                 .background(if (connected) colors.secondary else colors.outline, CircleShape)
                         )
                         Text(
-                            connectionLabel(agent, connected),
+                            stringResource(if (connected) R.string.agent_linked else R.string.agent_off),
                             style = MaterialTheme.typography.bodySmall,
                             color = colors.onSurfaceVariant,
                             maxLines = 1,

@@ -8,7 +8,7 @@ trap 'rm -f "$screen"' EXIT
 for attempt in {1..10}; do
   if adb shell uiautomator dump /data/local/tmp/magpie-ui.xml >/dev/null &&
      adb exec-out cat /data/local/tmp/magpie-ui.xml > "$screen" &&
-     grep -Fq 'content-desc="更多"' "$screen"; then
+     grep -Fq 'resource-id="nav_more"' "$screen"; then
     exit 0
   fi
   sleep 1

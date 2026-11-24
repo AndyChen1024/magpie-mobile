@@ -33,6 +33,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.contentDescription
@@ -41,8 +42,6 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.andychen.magpie_android.R
 import java.time.LocalDate
-import java.time.format.DateTimeFormatter
-import java.util.Locale
 
 private enum class UsagePage(@field:StringRes val label: Int) {
     Overview(R.string.overview), Requests(R.string.requests),
@@ -53,11 +52,9 @@ private enum class UsageRange(@field:StringRes val label: Int, val days: Int) {
     Today(R.string.range_today, 1), Week(R.string.range_week, 7), Month(R.string.range_month, 30)
 }
 
-private val requestTime = DateTimeFormatter.ofPattern("MM-dd HH:mm", Locale.ROOT)
-private val chartDate = DateTimeFormatter.ofPattern("MM-dd", Locale.ROOT)
-
 @Composable
 internal fun UsageScreen() {
+    val formats = rememberUsageFormats()
     var tab by rememberSaveable { mutableStateOf(UsagePage.Overview) }
     var range by rememberSaveable { mutableStateOf(UsageRange.Today) }
     var showRange by remember { mutableStateOf(false) }
@@ -104,11 +101,11 @@ internal fun UsageScreen() {
                     }
                 }
             }
-            Text(money(totals.costCents), style = MaterialTheme.typography.titleLarge)
+            Text(formats.usd(totals.costCents / 100.0), style = MaterialTheme.typography.titleLarge)
         }
     }
     when (tab) {
-        UsagePage.Overview -> UsageOverview(totals, requests.map { it.value }, range, firstDate)
+        UsagePage.Overview -> UsageOverview(totals, requests.map { it.value }, range, firstDate, formats)
         UsagePage.Requests -> {
             SearchBox(query, stringResource(R.string.find_request)) { query = it }
             val search = query.trim()
@@ -124,7 +121,7 @@ internal fun UsageScreen() {
                         if (position > 0) MagpieDivider()
                         InfoRow(
                             title = request.model.name,
-                            subtitle = "${request.agent.name} · ${request.time.format(requestTime)}",
+                            subtitle = "${request.agent.name} · ${formats.dateTime(request.time)}",
                             icon = request.agent.icon,
                             trailing = stringResource(request.statusLabel),
                             onClick = { detailIndex = index }
@@ -138,7 +135,7 @@ internal fun UsageScreen() {
     }
 
     allRequests.getOrNull(detailIndex)?.let { request ->
-        RequestDetail(request, onDismiss = { detailIndex = -1 })
+        RequestDetail(request, formats, onDismiss = { detailIndex = -1 })
     }
 }
 
@@ -147,7 +144,8 @@ private fun UsageOverview(
     totals: UsageTotals,
     requests: List<DemoRequest>,
     range: UsageRange,
-    firstDate: LocalDate
+    firstDate: LocalDate,
+    formats: UsageFormats
 ) {
     val colors = MaterialTheme.colorScheme
     val reads = totals.cacheRead + totals.input
@@ -160,24 +158,24 @@ private fun UsageOverview(
     )
     MagpiePanel {
         MetricRow(
-            left = Metric(shortCount(totals.tokens), stringResource(R.string.token), tokenDetail(totals)),
+            left = Metric(formats.shortCount(totals.tokens), stringResource(R.string.token), tokenDetail(totals, formats)),
             right = Metric(
-                shortCount(totals.cacheRead),
+                formats.shortCount(totals.cacheRead),
                 stringResource(R.string.cache_read),
-                stringResource(R.string.cache_hit_rate, String.format(Locale.US, "%.1f%%", hitRate * 100))
+                stringResource(R.string.cache_hit_rate, formats.percent(hitRate))
             )
         )
         HorizontalDivider(color = colors.outlineVariant)
         MetricRow(
             left = Metric(
-                shortCount(totals.reasoning),
+                formats.shortCount(totals.reasoning),
                 stringResource(R.string.reasoning),
                 stringResource(R.string.included_in_output)
             ),
             right = Metric(
-                totals.count.toString(),
+                formats.count(totals.count),
                 stringResource(R.string.calls),
-                stringResource(R.string.failed_calls, totals.failures)
+                pluralStringResource(R.plurals.failed_calls, totals.failures, totals.failures)
             )
         )
     }
@@ -193,9 +191,9 @@ private fun UsageOverview(
     val labels = if (range == UsageRange.Today) {
         listOf("00:00", "06:00", "12:00", "18:00", "23:00")
     } else {
-        listOf(0, (range.days - 1) / 2, range.days - 1).map { firstDate.plusDays(it.toLong()).format(chartDate) }
+        listOf(0, (range.days - 1) / 2, range.days - 1).map { formats.date(firstDate.plusDays(it.toLong())) }
     }
-    TokenChart(buckets, labels)
+    TokenChart(buckets, labels, formats)
 
     SectionLabel(stringResource(R.string.agents))
     MagpiePanel {
@@ -203,7 +201,7 @@ private fun UsageOverview(
             .entries.sortedByDescending { it.value.tokens }
             .forEachIndexed { index, (agent, agentTotals) ->
                 if (index > 0) MagpieDivider()
-                UsageBreakdown(agent.name, agent.icon, agentTotals)
+                UsageBreakdown(agent.name, agent.icon, agentTotals, formats)
             }
     }
     SectionLabel(stringResource(R.string.model))
@@ -212,7 +210,7 @@ private fun UsageOverview(
             .entries.sortedByDescending { it.value.tokens }
             .forEachIndexed { index, (model, modelTotals) ->
                 if (index > 0) MagpieDivider()
-                UsageBreakdown(model.name, model.icon, modelTotals)
+                UsageBreakdown(model.name, model.icon, modelTotals, formats)
             }
     }
 }
@@ -242,7 +240,7 @@ private fun MetricCell(metric: Metric, modifier: Modifier) {
 }
 
 @Composable
-private fun TokenChart(buckets: List<UsageTotals>, labels: List<String>) {
+private fun TokenChart(buckets: List<UsageTotals>, labels: List<String>, formats: UsageFormats) {
     val colors = MaterialTheme.colorScheme
     val maxTokens = buckets.maxOf { it.tokens }.coerceAtLeast(1)
     val chartLabel = stringResource(R.string.token_chart)
@@ -252,7 +250,7 @@ private fun TokenChart(buckets: List<UsageTotals>, labels: List<String>) {
             verticalArrangement = Arrangement.spacedBy(6.dp)
         ) {
             Text(
-                shortCount(maxTokens),
+                formats.shortCount(maxTokens),
                 Modifier.align(Alignment.End),
                 style = MaterialTheme.typography.bodySmall,
                 color = colors.onSurfaceVariant
@@ -278,7 +276,7 @@ private fun TokenChart(buckets: List<UsageTotals>, labels: List<String>) {
 }
 
 @Composable
-private fun UsageBreakdown(name: String, icon: Int, totals: UsageTotals) {
+private fun UsageBreakdown(name: String, icon: Int, totals: UsageTotals, formats: UsageFormats) {
     val colors = MaterialTheme.colorScheme
     Row(
         modifier = Modifier.fillMaxWidth().padding(14.dp),
@@ -288,30 +286,34 @@ private fun UsageBreakdown(name: String, icon: Int, totals: UsageTotals) {
         Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(3.dp)) {
             Text(name, style = MaterialTheme.typography.titleMedium)
             Text(
-                stringResource(R.string.call_summary, totals.count, totals.failures),
+                stringResource(
+                    R.string.call_summary,
+                    pluralStringResource(R.plurals.total_calls, totals.count, totals.count),
+                    pluralStringResource(R.plurals.failed_calls, totals.failures, totals.failures)
+                ),
                 style = MaterialTheme.typography.bodySmall,
                 color = colors.onSurfaceVariant
             )
-            Text(shortCount(totals.tokens), style = MaterialTheme.typography.labelLarge)
-            Text(tokenDetail(totals), style = MaterialTheme.typography.bodySmall, color = colors.onSurfaceVariant)
+            Text(formats.shortCount(totals.tokens), style = MaterialTheme.typography.labelLarge)
+            Text(tokenDetail(totals, formats), style = MaterialTheme.typography.bodySmall, color = colors.onSurfaceVariant)
         }
-        Text(money(totals.costCents), style = MaterialTheme.typography.labelLarge, color = colors.secondary)
+        Text(formats.usd(totals.costCents / 100.0), style = MaterialTheme.typography.labelLarge, color = colors.secondary)
     }
 }
 
 @Composable
-private fun RequestDetail(request: DemoRequest, onDismiss: () -> Unit) {
+private fun RequestDetail(request: DemoRequest, formats: UsageFormats, onDismiss: () -> Unit) {
     InfoDialog(stringResource(R.string.request_detail), onDismiss) {
         val fields = listOf(
             R.string.model to request.model.name,
             R.string.agents to request.agent.name,
             R.string.request_status to stringResource(request.statusLabel),
-            R.string.request_time to request.time.format(requestTime),
-            R.string.input_tokens to request.input.toString(),
-            R.string.output_tokens to request.output.toString(),
-            R.string.cache_read to request.cacheRead.toString(),
+            R.string.request_time to formats.dateTime(request.time),
+            R.string.input_tokens to formats.count(request.input),
+            R.string.output_tokens to formats.count(request.output),
+            R.string.cache_read to formats.count(request.cacheRead),
             R.string.latency to stringResource(R.string.duration_ms, request.latencyMs),
-            R.string.request_cost to money(request.costCents)
+            R.string.request_cost to formats.usd(request.costCents / 100.0)
         )
         fields.forEach { (label, value) ->
             Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
@@ -326,11 +328,5 @@ private val DemoRequest.statusLabel: Int
     get() = if (failed) R.string.status_failed else R.string.status_success
 
 @Composable
-private fun tokenDetail(totals: UsageTotals): String =
-    stringResource(R.string.io_tokens, shortCount(totals.input), shortCount(totals.output))
-
-private fun shortCount(value: Int): String =
-    if (value < 1_000) value.toString()
-    else String.format(Locale.US, "%.1f", value / 1_000.0).removeSuffix(".0") + "K"
-
-private fun money(cents: Int): String = String.format(Locale.US, "$%.2f", cents / 100.0)
+private fun tokenDetail(totals: UsageTotals, formats: UsageFormats): String =
+    stringResource(R.string.io_tokens, formats.shortCount(totals.input), formats.shortCount(totals.output))

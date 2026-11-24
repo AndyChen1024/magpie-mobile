@@ -45,11 +45,13 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.testTagsAsResourceId
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
@@ -193,6 +195,7 @@ private fun MagpieNavigation(page: Page, onNavigate: (Page) -> Unit) {
                     .windowInsetsPadding(WindowInsets.safeDrawing.only(WindowInsetsSides.Horizontal))
                     .padding(horizontal = 4.dp)
                     .selectableGroup()
+                    .semantics { testTagsAsResourceId = true }
             ) {
                 for (item in mainPages) {
                     NavigationItem(
@@ -209,7 +212,7 @@ private fun MagpieNavigation(page: Page, onNavigate: (Page) -> Unit) {
                         icon = MagpieIcons.More,
                         selected = page in overflowPages,
                         onClick = { showMore = true },
-                        modifier = Modifier.fillMaxWidth()
+                        modifier = Modifier.fillMaxWidth().testTag("nav_more")
                     )
                     DropdownMenu(
                         expanded = showMore,
