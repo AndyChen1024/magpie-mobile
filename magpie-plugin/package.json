@@ -1,0 +1,26 @@
+{
+  "name": "magpie-connect-phone",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "main": "index.mjs",
+  "magpie": {
+    "page": {
+      "title": "连接手机",
+      "file": "page.html",
+      "service": {
+        "port": 18647,
+        "option": "port"
+      }
+    }
+  },
+  "dependencies": {
+    "@getpaseo/protocol": "0.16.2",
+    "@getpaseo/relay": "0.16.2",
+    "qrcode-generator": "2.0.4",
+    "ws": "8.23.0"
+  },
+  "scripts": {
+    "package": "node tools/package.mjs"
+  }
+}

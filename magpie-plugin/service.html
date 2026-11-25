@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>连接手机</title>
+<style nonce="{{NONCE}}">{{CSS}}</style>
+</head>
+<body data-token="{{TOKEN}}">
+<main>
+  <header>
+    <h1>连接手机</h1>
+    <p>授权手机通过中继读取这台 Mac 的名称。</p>
+  </header>
+
+  <section aria-labelledby="connection-title">
+    <div class="row">
+      <h2 id="connection-title">中继连接</h2>
+      <span id="status" data-status="loading" role="status">正在检查</span>
+    </div>
+    <p id="detail"></p>
+    <div class="actions">
+      <button id="start" type="button" hidden>开启后台连接</button>
+      <button id="issue" class="primary" type="button" hidden>生成配对码</button>
+      <button id="stop" type="button" hidden>关闭后台连接</button>
+    </div>
+    <div id="pairing" hidden>
+      <img id="qr" alt="手机配对二维码">
+      <div class="pairing-info">
+        <p>请用手机扫描二维码。配对码两分钟内有效，仅可使用一次。</p>
+        <input id="link" aria-label="配对链接" readonly spellcheck="false">
+        <div class="actions">
+          <button id="select-link" type="button">选中链接</button>
+          <button id="cancel" type="button">取消配对</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section aria-labelledby="devices-title">
+    <h2 id="devices-title">已授权设备</h2>
+    <p id="empty">正在读取设备…</p>
+    <ul id="devices"></ul>
+  </section>
+
+  <p id="notice" role="status"></p>
+</main>
+<dialog id="confirm-revoke" aria-labelledby="confirm-title">
+  <h2 id="confirm-title">撤销设备权限</h2>
+  <p id="confirm-label"></p>
+  <div class="actions">
+    <button id="keep-device" type="button" autofocus>保留设备</button>
+    <button id="revoke-device" type="button">确认撤销</button>
+  </div>
+</dialog>
+<script nonce="{{NONCE}}">{{SCRIPT}}</script>
+</body>
+</html>
