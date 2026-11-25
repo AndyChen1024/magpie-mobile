@@ -6,7 +6,7 @@ const dist = fileURLToPath(new URL('../dist', import.meta.url));
 const stage = `${dist}.${process.pid}.tmp`;
 const files = [
   'index.mjs', 'launch-agent.mjs', 'companion.mjs', 'host.mjs', 'protocol.mjs', 'relay.mjs',
-  'page.html', 'page.js', 'service.html', 'service.css', 'service.js',
+  'page.html', 'page.js', 'service.html', 'service.css', 'service.js', 'icon.png',
 ];
 const manifest = JSON.parse(readFileSync(new URL('package.json', root)));
 delete manifest.scripts;

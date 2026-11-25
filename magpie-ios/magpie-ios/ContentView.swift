@@ -182,7 +182,7 @@ private struct MagpieWorkspace: View {
 
     private var header: some View {
         HStack(spacing: 6) {
-            Image("MagpieMark")
+            Image("MagpieMobileMark")
                 .resizable()
                 .scaledToFit()
                 .frame(width: 19, height: 19)

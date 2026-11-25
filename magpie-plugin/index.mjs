@@ -36,6 +36,7 @@ export async function PageService(_input, options) {
   const template = readFileSync(new URL('./service.html', import.meta.url), 'utf8');
   const css = readFileSync(new URL('./service.css', import.meta.url), 'utf8');
   const script = readFileSync(new URL('./service.js', import.meta.url), 'utf8');
+  const icon = readFileSync(new URL('./icon.png', import.meta.url)).toString('base64');
 
   async function control({ token, action, id }) {
     if (typeof token !== 'string' || token.length !== secret.length ||
@@ -83,6 +84,7 @@ export async function PageService(_input, options) {
         `default-src 'none'; frame-ancestors 'self' wails: http://127.0.0.1:*; base-uri 'none'; form-action 'none'; script-src 'nonce-${nonce}'; style-src 'nonce-${nonce}'; connect-src 'self' ${ownOrigin}; img-src data:`);
       res.setHeader('Content-Type', 'text/html; charset=utf-8');
       res.end(template.replaceAll('{{NONCE}}', nonce).replace('{{TOKEN}}', secret)
+        .replaceAll('{{ICON}}', `data:image/png;base64,${icon}`)
         .replace('{{CSS}}', () => css).replace('{{SCRIPT}}', () => script));
       return;
     }

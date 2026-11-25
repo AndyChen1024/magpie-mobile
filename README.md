@@ -1,5 +1,7 @@
 <div align="center">
 
+<img src="assets/branding/magpie-mobile.png" alt="" width="104" height="104" />
+
 # Magpie Mobile
 
 **English** · [简体中文](README.zh-CN.md)
