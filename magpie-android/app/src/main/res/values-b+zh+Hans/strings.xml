@@ -128,4 +128,24 @@
     <string name="usage_invalid_data">主机返回了无法读取的用量数据。</string>
     <string name="usage_key_missing">无法读取已保存的密钥，请重新配置连接。</string>
     <string name="usage_server_error">主机暂时无法提供用量，请稍后重试。</string>
+    <string name="phone_title">连接手机</string>
+    <string name="phone_unpaired">尚未配对 Mac</string>
+    <string name="phone_connecting">正在连接…</string>
+    <string name="phone_connected">已连接</string>
+    <string name="phone_disconnected">已断开</string>
+    <string name="phone_authorization_lost">授权已失效</string>
+    <string name="phone_instructions">在 Mac 版 Magpie 的「连接手机」页面生成配对码。</string>
+    <string name="phone_scan">扫描配对码</string>
+    <string name="phone_pair_again">扫描新码重新配对</string>
+    <string name="phone_scan_prompt">将相机对准 Mac 上的配对码。</string>
+    <string name="phone_invalid_code">配对码无效。请扫描 Mac 版 Magpie 显示的配对码。</string>
+    <string name="phone_expired_code">配对码已过期、已被替换或已使用。请在 Mac 上生成新码。</string>
+    <string name="phone_camera_denied">请允许相机访问，以扫描配对码。</string>
+    <string name="phone_app_settings">打开应用设置</string>
+    <string name="phone_relay_unavailable">无法连接中继或 Mac。请检查 Mac 后台连接是否已开启，以及中继是否可达。</string>
+    <string name="phone_protocol_error">无法验证 Mac 连接或回执。请生成新的配对码后重试。</string>
+    <string name="phone_storage_error">无法访问本机配对身份。请扫描新的配对码重试。</string>
+    <string name="phone_device_limit">Mac 的授权设备数量已达上限。请移除不用的设备，再扫描新码。</string>
+    <string name="phone_retry">立即重连</string>
+    <string name="phone_read_mac">刷新 Mac 名称</string>
 </resources>

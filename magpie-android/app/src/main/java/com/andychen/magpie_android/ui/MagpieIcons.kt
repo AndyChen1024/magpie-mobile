@@ -17,6 +17,7 @@ internal object MagpieIcons {
     val Routing = lineIcon("Routing", "M3 10h5l4-5h5M8 10l4 5h5M14.5 3l2.5 2-2.5 2M14.5 13l2.5 2-2.5 2")
     val Gateway = lineIcon("Gateway", "M4.5 4h11A1.5 1.5 0 0 1 17 5.5v2A1.5 1.5 0 0 1 15.5 9h-11A1.5 1.5 0 0 1 3 7.5v-2A1.5 1.5 0 0 1 4.5 4ZM4.5 11h11a1.5 1.5 0 0 1 1.5 1.5v2a1.5 1.5 0 0 1-1.5 1.5h-11A1.5 1.5 0 0 1 3 14.5v-2A1.5 1.5 0 0 1 4.5 11ZM6 6.5h.01M6 13.5h.01")
     val Usage = lineIcon("Usage", "M4 16V9M8 16V5M12 16v-5M16 16V7")
+    val Phone = lineIcon("Phone", "M6 2.5h8a1 1 0 0 1 1 1v13a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1v-13a1 1 0 0 1 1-1ZM9 14.5h2")
     val Masking = lineIcon("Masking", "M10 2.4 16 4.7v4.7c0 3.8-2.6 6.8-6 8.2-3.4-1.4-6-4.4-6-8.2V4.7Z")
     val Plugins = lineIcon("Plugins", "M3.5 3.5h6v2.7a1.5 1.5 0 1 0 3 0V3.5h4v13h-13v-4h2.7a1.5 1.5 0 1 0 0-3H3.5Z")
     val Settings = lineIcon("Settings", "M8.8 3h2.4l.4 2 1.5.9 2-.7 1.2 2.1-1.6 1.3v1.8l1.6 1.3-1.2 2.1-2-.7-1.5.9-.4 2H8.8l-.4-2-1.5-.9-2 .7-1.2-2.1 1.6-1.3V8.6L3.7 7.3l1.2-2.1 2 .7 1.5-.9zM12 9.5a2 2 0 1 0-4 0 2 2 0 0 0 4 0Z")

@@ -67,6 +67,7 @@ private enum class Page(@field:StringRes val title: Int, val icon: ImageVector) 
     Routing(R.string.routing, MagpieIcons.Routing),
     Gateway(R.string.gateway, MagpieIcons.Gateway),
     Usage(R.string.usage, MagpieIcons.Usage),
+    Phone(R.string.phone_title, MagpieIcons.Phone),
     Masking(R.string.masking, MagpieIcons.Masking),
     Plugins(R.string.plugins, MagpieIcons.Plugins),
     Settings(R.string.settings, MagpieIcons.Settings)
@@ -77,12 +78,13 @@ internal enum class ThemeMode(@field:StringRes val title: Int) {
 }
 
 private val mainPages = listOf(Page.Agents, Page.Sessions, Page.Library, Page.Providers)
-private val overflowPages = listOf(Page.Routing, Page.Gateway, Page.Usage, Page.Masking, Page.Plugins)
+private val overflowPages = listOf(Page.Routing, Page.Gateway, Page.Usage, Page.Phone, Page.Masking, Page.Plugins)
 
 @Composable
 internal fun MagpieApp(
     theme: ThemeMode,
     onThemeChange: (ThemeMode) -> Unit,
+    phoneContent: @Composable () -> Unit = {},
     usageContent: @Composable () -> Unit
 ) {
     var page by rememberSaveable { mutableStateOf(Page.Agents) }
@@ -132,6 +134,7 @@ internal fun MagpieApp(
                         Page.Library -> LibraryScreen()
                         Page.Providers -> ProvidersScreen()
                         Page.Usage -> Unit
+                        Page.Phone -> phoneContent()
                         Page.Settings -> SettingsScreen(theme, onThemeChange)
                         else -> {
                             SectionLabel(stringResource(page.title))
@@ -156,17 +159,17 @@ private fun MagpieHeader(page: Page, onSettings: () -> Unit, onBack: () -> Unit)
         horizontalArrangement = Arrangement.spacedBy(6.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        if (page == Page.Settings) {
+        if (page == Page.Settings || page == Page.Phone) {
             IconButton(onClick = onBack) {
                 Icon(MagpieIcons.Back, stringResource(R.string.back), tint = colors.onSurfaceVariant)
             }
-            Text(stringResource(R.string.settings), style = MaterialTheme.typography.titleLarge)
+            Text(stringResource(page.title), style = MaterialTheme.typography.titleLarge)
         } else {
             BrandIcon(R.drawable.brand_magpie, Modifier.size(20.dp))
             Text("magpie", style = MaterialTheme.typography.titleLarge)
         }
         Box(Modifier.weight(1f), contentAlignment = Alignment.CenterEnd) {
-            if (page != Page.Usage && page != Page.Settings) {
+            if (page != Page.Usage && page != Page.Settings && page != Page.Phone) {
                 Text(
                     stringResource(R.string.demo_data),
                     style = MaterialTheme.typography.bodySmall,

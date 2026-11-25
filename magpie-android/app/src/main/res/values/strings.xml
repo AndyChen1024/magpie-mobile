@@ -131,4 +131,24 @@
     <string name="usage_invalid_data">The host returned unreadable usage data.</string>
     <string name="usage_key_missing">Could not read the saved gateway key. Set up the connection again.</string>
     <string name="usage_server_error">The host could not load usage data. Try again later.</string>
+    <string name="phone_title">Connect Phone</string>
+    <string name="phone_unpaired">No Mac paired</string>
+    <string name="phone_connecting">Connecting…</string>
+    <string name="phone_connected">Connected</string>
+    <string name="phone_disconnected">Disconnected</string>
+    <string name="phone_authorization_lost">Authorization is no longer valid</string>
+    <string name="phone_instructions">Open Connect Phone in Magpie on your Mac and generate a pairing code.</string>
+    <string name="phone_scan">Scan pairing code</string>
+    <string name="phone_pair_again">Scan a new pairing code</string>
+    <string name="phone_scan_prompt">Point the camera at the Mac pairing code.</string>
+    <string name="phone_invalid_code">This is not a valid Magpie pairing code. Scan the code shown in Magpie on your Mac.</string>
+    <string name="phone_expired_code">This code has expired, was replaced, or was already used. Generate a new code on your Mac.</string>
+    <string name="phone_camera_denied">Allow camera access to scan the pairing code.</string>
+    <string name="phone_app_settings">Open app settings</string>
+    <string name="phone_relay_unavailable">The relay or Mac is unreachable. Check that the Mac background connection is running and the relay is reachable.</string>
+    <string name="phone_protocol_error">Unable to verify the connection or response from the Mac. Generate a new pairing code and try again.</string>
+    <string name="phone_storage_error">Unable to access this phone’s pairing identity. Scan a new pairing code to try again.</string>
+    <string name="phone_device_limit">This Mac has reached its paired-device limit. Remove an unused device and scan a new code.</string>
+    <string name="phone_retry">Reconnect now</string>
+    <string name="phone_read_mac">Refresh Mac name</string>
 </resources>
