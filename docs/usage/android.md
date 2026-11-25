@@ -12,7 +12,7 @@
 
 1. 从 `MagpieApp.kt` 找到用量导航，修改 `UsageScreen.kt` 的数据入口。菜单、返回、弹层和详情由 Compose 管理。让页面接收不可变状态与回调，由页面外的状态持有者收集共享结果。保存时间范围等 UI 选择，页面重建时依当前连接恢复查询。[Compose 状态提升](https://developer.android.com/develop/ui/compose/state-hoisting)
 2. 连接表单采用安全输入，凭据以 Android Keystore 保护的加密存储持久化，排除凭据备份。断开并清除连接时删除对应条目。证书校验使用目标主机及应用信任链。用真实设备检查目标证书链能否被应用信任。
-3. 现有应用 `targetSdk=37`，主清单尚未声明网络权限。接入时声明 `INTERNET`。对于本稿采用的手动直连，在 Android 17 及以上声明并按运行时规则申请 `ACCESS_LOCAL_NETWORK`，旧系统按对应平台规则处理。拒绝、撤销以及返回设置后的重试需要分别验证。[Android 本地网络权限](https://developer.android.com/privacy-and-security/local-network-permission)
+3. Android 应用使用 `minSdk=28`、`targetSdk=36` 和 `compileSdk=37`。主清单声明 `INTERNET`，手动局域网直连使用系统兼容授权。将来提升到 `targetSdk=37` 或更高时，需在清单声明 `ACCESS_LOCAL_NETWORK`，并在 Android 17 及以上回归运行时权限的拒绝、撤销和恢复。[Android 本地网络权限](https://developer.android.com/privacy-and-security/local-network-permission)
 
 如果 Mac 使用 Magpie 内置 CA，在 Magpie 的网络与共享设置中导出 `magpie-ca.crt`，将文件传到 Android，再从用量页的连接表单选择「导入 CA」。App 将该 CA 与网关的 HTTPS 地址和密钥一起保存，并校验证书链和主机名。没有选择 CA 时仍使用 Android 默认的信任设置。
 
@@ -28,6 +28,12 @@
 编写本稿时已用 Gradle dry-run 确认上述任务存在。设备测试依赖首次解析时未能从 Maven Central 下载 JUnit Platform Launcher 1.13.3；实施时需验证依赖解析并实际运行设备测试。
 
 为新模块补充实际的共享测试、framework 构建任务名和结果。模板加法测试只验证测试入口。新增的 Compose 测试至少走一遍“用量 → 受限概览 → 自己的请求”，并验证重试或重建后没有重复记录。真机阶段按[共同验收用例](acceptance.md)核对同一授权范围的 Mac 数据。
+
+### 目标 SDK 36 真机回归
+
+2026-11-25，三星 SM-S9280（Android 17，API 37）使用同签名 Debug 包。APK 的最低 API 为 28，目标 API 为 36。设备测试 7 项通过，包括 Android 17 上目标 API 36 使用兼容授权，以及目标 API 37 处理授权和拒绝的判断。Espresso 为 3.7.0。
+
+Mac 运行 Magpie 0.1.4759。手机通过 USB ADB reverse 访问临时 HTTPS 入口，入口仅提供真实网关的用量数据，使用独立的短期 CA 和密钥。用量页的最近 30 天调用数、错误数和合计 token 与网关快照一致。手动刷新产生新的概览请求。请求页的首页行数、总数和首条模型与快照一致。概览两次、请求首页一次均返回 HTTPS 200。同一 Wi-Fi 直连待验收，当时 Mac 与手机的 Wi-Fi 路由没有匹配到同一网段。
 
 **确认后可直接发给 Android 对话**
 

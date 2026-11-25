@@ -21,8 +21,9 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
 internal fun hasLocalNetworkPermission(context: Context): Boolean =
-    Build.VERSION.SDK_INT < 37 || context.checkSelfPermission(Manifest.permission.ACCESS_LOCAL_NETWORK) ==
-        PackageManager.PERMISSION_GRANTED
+    Build.VERSION.SDK_INT < Build.VERSION_CODES.CINNAMON_BUN ||
+        context.applicationInfo.targetSdkVersion < Build.VERSION_CODES.CINNAMON_BUN ||
+        context.checkSelfPermission(Manifest.permission.ACCESS_LOCAL_NETWORK) == PackageManager.PERMISSION_GRANTED
 
 internal class AndroidUsageTransport(
     private val context: Context,
