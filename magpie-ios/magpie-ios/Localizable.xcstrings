@@ -1803,6 +1803,226 @@
           }
         }
       }
+    },
+    "Camera unavailable. You can paste the pairing link instead." : {
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "相机不可用，可以返回后粘贴配对链接。"
+          }
+        }
+      }
+    },
+    "Can’t reach the Mac through the relay. Check your connection and allow Local Network access for a local relay." : {
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "无法通过中继连接 Mac。请检查网络。使用局域网中继时，请在系统设置中允许本地网络访问。"
+          }
+        }
+      }
+    },
+    "Connect Phone" : {
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "连接手机"
+          }
+        }
+      }
+    },
+    "Connecting to Mac…" : {
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "正在连接 Mac…"
+          }
+        }
+      }
+    },
+    "Couldn’t access this phone’s pairing in Keychain." : {
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "无法访问钥匙串中的手机配对信息。"
+          }
+        }
+      }
+    },
+    "Couldn’t verify the protected connection to your Mac." : {
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "无法验证与 Mac 的加密连接。"
+          }
+        }
+      }
+    },
+    "Mac Connected" : {
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "已连接 Mac"
+          }
+        }
+      }
+    },
+    "Mac Disconnected" : {
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "已断开连接"
+          }
+        }
+      }
+    },
+    "Open Connect Phone in Magpie on your Mac and generate a pairing code." : {
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "在 Mac 版 Magpie 中打开「连接手机」，生成配对码。"
+          }
+        }
+      }
+    },
+    "Pair Again" : {
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "授权失效，请重新配对"
+          }
+        }
+      }
+    },
+    "Paste Pairing Link" : {
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "粘贴配对链接"
+          }
+        }
+      }
+    },
+    "Phone Not Paired" : {
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "尚未配对"
+          }
+        }
+      }
+    },
+    "Point the camera at the pairing code on your Mac." : {
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "将相机对准 Mac 上显示的配对码。"
+          }
+        }
+      }
+    },
+    "Reconnect" : {
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "重新连接"
+          }
+        }
+      }
+    },
+    "Refresh Mac Name" : {
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "刷新 Mac 名称"
+          }
+        }
+      }
+    },
+    "Scan Pairing Code" : {
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "扫描配对码"
+          }
+        }
+      }
+    },
+    "This Magpie pairing link is invalid." : {
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Magpie 配对链接无效。"
+          }
+        }
+      }
+    },
+    "This build requires a secure relay address." : {
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "此版本需要使用安全的中继地址。"
+          }
+        }
+      }
+    },
+    "This pairing code expired or was already used. Generate a new code on your Mac." : {
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "配对码已过期或已使用，请在 Mac 上生成新配对码。"
+          }
+        }
+      }
+    },
+    "Your Mac has reached its paired device limit." : {
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mac 已达到配对设备数量上限。"
+          }
+        }
+      }
+    },
+    "Your Mac removed this phone’s authorization." : {
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mac 已撤销此手机的授权。"
+          }
+        }
+      }
+    },
+    "Your Mac returned an invalid reply." : {
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mac 返回的应答无效。"
+          }
+        }
+      }
     }
   },
   "version" : "1.0"

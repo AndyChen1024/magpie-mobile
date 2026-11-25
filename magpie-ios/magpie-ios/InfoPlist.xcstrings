@@ -13,19 +13,36 @@
         }
       }
     },
+    "NSCameraUsageDescription" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Scan the pairing code displayed by Magpie on your Mac."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "扫描 Mac 版 Magpie 显示的配对码。"
+          }
+        }
+      }
+    },
     "NSLocalNetworkUsageDescription" : {
       "extractionState" : "manual",
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Connect to your Mac on the local network to read Magpie usage and request details."
+            "value" : "Connect to your Mac on the local network to pair your phone or read Magpie usage and request details."
           }
         },
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "连接同一局域网中的 Mac，读取 Magpie 的用量与请求明细。"
+            "value" : "连接同一局域网中的 Mac 来配对手机，或读取 Magpie 的用量与请求明细。"
           }
         }
       }

@@ -2,9 +2,16 @@ import SwiftUI
 
 enum MagpiePage: String, Identifiable {
     case agents, sessions, library, providers, routing, gateway, usage, masking, plugins
+    #if os(iOS)
+    case phoneConnection
+    #endif
 
     static let tabs: [Self] = [.agents, .sessions, .library, .providers]
+    #if os(iOS)
+    static let overflow: [Self] = [.routing, .gateway, .usage, .phoneConnection, .masking, .plugins]
+    #else
     static let overflow: [Self] = [.routing, .gateway, .usage, .masking, .plugins]
+    #endif
 
     var id: String { rawValue }
 
@@ -19,6 +26,9 @@ enum MagpiePage: String, Identifiable {
         case .usage: String(localized: "Usage")
         case .masking: String(localized: "Redaction")
         case .plugins: String(localized: "Plugins")
+        #if os(iOS)
+        case .phoneConnection: String(localized: "Connect Phone")
+        #endif
         }
     }
 
@@ -33,6 +43,19 @@ enum MagpiePage: String, Identifiable {
         case .usage: "chart.bar"
         case .masking: "shield"
         case .plugins: "puzzlepiece.extension"
+        #if os(iOS)
+        case .phoneConnection: "iphone"
+        #endif
+        }
+    }
+
+    var contextLabel: String? {
+        switch self {
+        case .usage: String(localized: "LAN Usage")
+        #if os(iOS)
+        case .phoneConnection: nil
+        #endif
+        default: String(localized: "Demo Data")
         }
     }
 }
@@ -64,6 +87,9 @@ struct ContentView: View {
     @Environment(\.scenePhase) private var scenePhase
     @State private var backgrounded = false
     @ObservedObject private var usage: UsageWorkspace
+    #if os(iOS)
+    @StateObject private var phone = PhoneWorkspace()
+    #endif
 
     init(usage: UsageWorkspace) {
         self.usage = usage
@@ -71,9 +97,17 @@ struct ContentView: View {
 
     var body: some View {
         MagpieWorkspace(appearance: $appearance, usage: usage)
+            #if os(iOS)
+            .environmentObject(phone)
+            .task { if scenePhase == .active { phone.foregrounded() } }
+            #endif
             .preferredColorScheme(appearance.colorScheme)
             .task(id: usage.observationID) { await usage.observe() }
             .onValueChange(of: scenePhase) { phase in
+                #if os(iOS)
+                if phase == .active { phone.foregrounded() }
+                if phase == .background { phone.backgrounded() }
+                #endif
                 if phase == .background { backgrounded = true }
                 if phase == .active && backgrounded {
                     backgrounded = false
@@ -88,6 +122,9 @@ private struct MagpieWorkspace: View {
 
     @Binding var appearance: MagpieAppearance
     let usage: UsageWorkspace
+    #if os(iOS)
+    @EnvironmentObject private var phone: PhoneWorkspace
+    #endif
     @State private var page = MagpiePage.agents
     @State private var showsMore = false
     @State private var showsSettings = false
@@ -154,9 +191,11 @@ private struct MagpieWorkspace: View {
                 .font(.headline)
 
             Spacer(minLength: 8)
-            Text(page == .usage ? String(localized: "LAN Usage") : String(localized: "Demo Data"))
-                .font(.caption)
-                .foregroundStyle(theme.muted)
+            if let label = page.contextLabel {
+                Text(label)
+                    .font(.caption)
+                    .foregroundStyle(theme.muted)
+            }
             Button {
                 showsMore = false
                 showsSettings = true
@@ -183,6 +222,9 @@ private struct MagpieWorkspace: View {
         case .library: LibraryPage()
         case .providers: ProvidersPage()
         case .usage: UsagePage(workspace: usage)
+        #if os(iOS)
+        case .phoneConnection: PhoneConnectionPage(workspace: phone)
+        #endif
         case .routing, .gateway, .masking, .plugins: OverviewPage(page: page)
         }
     }
