@@ -10,7 +10,7 @@
 
 面向 [Magpie](https://github.com/yetone/magpie) 用户的独立 Android 和 iOS 开源客户端。
 
-**[下载 Android 内测 APK](https://github.com/AndyChen1024/magpie-mobile/releases)** · **[从源码运行](#本地开发)** · **[工程文档](#工程文档)** · **[问题反馈](https://github.com/AndyChen1024/magpie-mobile/issues)**
+**[下载 Android 0.1.0-alpha.3 内测 APK](https://github.com/AndyChen1024/magpie-mobile/releases)** · **[从源码运行](#本地开发)** · **[工程文档](#工程文档)** · **[问题反馈](https://github.com/AndyChen1024/magpie-mobile/issues)**
 
 </div>
 
@@ -34,7 +34,7 @@
 
 1. 打开 **更多 → 用量**，选择 **查看演示数据**，即可预览页面。
 2. 要查看自己的数据，在运行 Magpie 的电脑上开启局域网共享，准备手机可访问的 HTTPS 网关地址和网关密钥。网关证书须受应用信任，并匹配访问地址。[Magpie 局域网共享说明](https://github.com/yetone/magpie/blob/426a707a19ff7f481989f03c49519bf4dba1e593/docs/integrating.md#L50)
-3. 让手机和主机接入同一局域网，在 **用量 → 连接主机** 填写地址和密钥。连接后可切换时间范围，查看用量概览或翻阅请求明细。
+3. 让手机和主机接入同一局域网，在 **用量 → 连接主机** 填写地址和密钥。如果 Mac 使用 Magpie 内置的 HTTPS，请从 Mac 导出 `magpie-ca.crt`，在连接表单点 **导入 CA**。连接后可切换时间范围，查看用量概览或翻阅请求明细。
 
 ## 工程文档
 
