@@ -21,14 +21,14 @@ Magpie Mobile is in early development. On Android 9 or later, install the previe
 | Platform | Available today |
 | --- | --- |
 | Android | Built with Kotlin and Jetpack Compose. View read-only usage over the local network, including request counts, tokens, known costs, and individual requests for today, the last 7 days, or the last 30 days. Demo data works offline. |
-| iOS | Built with SwiftUI. Integration with the local gateway is in progress on a separate development branch. |
+| iOS | Built with SwiftUI. Open **More → Usage** to view the local gateway’s usage summary and individual requests, or try the offline demo. |
 
 ## Build from source
 
 Clone the repository and check out the branch you want to try.
 
 - **Android.** Open `magpie-android/` in Android Studio. Sync with Android SDK 37 and Gradle JDK 25, then run `app` on a device or emulator with Android 9 (API 28) or later.
-- **iOS.** On a Mac, open `magpie-ios/magpie-ios.xcodeproj` in Xcode. Select the `magpie-ios` scheme and an iOS 27.2 or later simulator. To run on a physical device, select your own development team for signing.
+- **iOS.** Follow the [iOS build guide](magpie-ios/README.md#构建) to build the shared framework for live gateway data. Open `magpie-ios/magpie-ios.xcodeproj` in Xcode and run the `magpie-ios` scheme on iOS 16.4 or later. Use iOS 17 or later for XCTest. To run on a physical device, select your own development team for signing.
 
 ### View gateway usage on Android
 
@@ -56,13 +56,15 @@ The engineering guides listed below are in Simplified Chinese.
 
 ## Feedback and contributions
 
-Use GitHub Issues to report a problem or discuss a feature. For connection or usage problems, include your phone's OS version, the Magpie version on your host, and steps to reproduce the issue. Remove gateway keys and other sensitive information before posting. [GitHub Issues](https://github.com/AndyChen1024/magpie-mobile/issues)
+When reporting a connection problem, include the phone OS, the host's Magpie version, the network path (same Wi-Fi, USB forwarding, or cellular), the steps to reproduce it, and the error message. In public screenshots, cover the entire pairing QR code, pairing link, device names, and private network addresses. Keep gateway keys and deployment tokens in their respective credential stores. [GitHub Issues](https://github.com/AndyChen1024/magpie-mobile/issues)
 
 In the commit body, list the affected platforms and describe what you tested. If you open a pull request, identify the commit you verified. [Git and release workflow (Simplified Chinese)](docs/git-workflow.md)
 
 ## Relay for remote sessions
 
-For the first remote session preview, the project plans to host Paseo Relay on Fly.io. The relay will forward end-to-end encrypted messages between the phone and the user's host, where the agent executes tasks. Local usage queries go directly to the Magpie gateway. [Paseo Relay project](https://github.com/getpaseo/paseo-relay)
+On the same LAN, the phone reads usage directly from the Magpie HTTPS gateway without a relay. Development builds can pair through a test relay and read the Mac's name. Scanning a QR code to connect directly to the Mac service over home Wi-Fi is still a design goal. [Mac plugin and local setup](magpie-plugin/README.md)
+
+For remote sessions, the project plans to operate a Paseo Relay. It will forward end-to-end encrypted messages between the phone and the host, where the agent runs. Clients can know the relay address. The Mac checks each device's authorization separately. A complete pairing code contains a one-time authorization ticket, so share it only with the device you intend to pair. [Paseo Relay project](https://github.com/getpaseo/paseo-relay)
 
 ## License
 

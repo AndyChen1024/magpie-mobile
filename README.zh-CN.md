@@ -21,14 +21,14 @@
 | 平台 | 当前实现 |
 | --- | --- |
 | Android | 使用 Kotlin 和 Jetpack Compose。已接入局域网只读用量，可按今天、最近 7 天和最近 30 天查看调用次数、token、已知费用及请求明细。也可离线查看演示数据。 |
-| iOS | 使用 SwiftUI，局域网用量正在独立开发分支中集成。 |
+| iOS | 使用 SwiftUI。在「更多 → 用量」可查看局域网网关的用量概览和请求明细，也可离线查看演示数据。 |
 
 ## 本地开发
 
 克隆仓库并检出要体验的分支，然后按平台运行。
 
 - **Android**。在 Android Studio 打开 `magpie-android/`，使用 Android SDK 37 和 Gradle JDK 25 同步项目，然后在 Android 9（API 28）或更新的设备或模拟器上运行 `app`。
-- **iOS**。在 Mac 上用 Xcode 打开 `magpie-ios/magpie-ios.xcodeproj`，选择 `magpie-ios` Scheme 和 iOS 27.2 或更新版本的模拟器。真机调试时请选择自己的开发团队。
+- **iOS**。按 [iOS 构建说明](magpie-ios/README.md#构建)生成读取真实网关数据所需的共享框架。在 Mac 上用 Xcode 打开 `magpie-ios/magpie-ios.xcodeproj`，选择 `magpie-ios` Scheme。应用支持 iOS 16.4 及以上，运行 XCTest 需要 iOS 17 及以上。真机调试时请选择自己的开发团队。
 
 ### 在 Android 上查看用量
 
@@ -52,13 +52,15 @@
 
 ## 反馈与贡献
 
-欢迎在 [GitHub Issues](https://github.com/AndyChen1024/magpie-mobile/issues) 报告问题或讨论功能。报告连接或用量问题时，请附上手机系统、Magpie 主机版本和复现步骤，并隐去网关密钥等敏感信息。
+报告连接问题时，请注明手机系统、Magpie 主机版本、网络路径（同一 Wi-Fi、USB 转发或蜂窝网络）、复现步骤和错误提示。公开截图请遮住整个配对二维码、配对链接、实际设备名称和私人网络地址。网关密钥和部署令牌应保存在各自的凭据存储中。[GitHub Issues](https://github.com/AndyChen1024/magpie-mobile/issues)
 
 提交代码改动时，在提交正文记录受影响的平台和验证结果。使用 PR 时，注明验证过的提交。[Git 工作流](docs/git-workflow.md#pr-验收与-github-门禁)
 
 ## 远程会话的中继方案
 
-远程续聊的首轮内测计划由项目方在 Fly.io 上托管 Paseo Relay。中继负责在手机与用户主机之间转发端到端加密消息，任务由主机上的 Agent 执行。局域网用量查询直接连接 Magpie 网关。[Paseo Relay 开源项目](https://github.com/getpaseo/paseo-relay)
+在同一局域网查看用量时，手机直接访问 Magpie HTTPS 网关，无需中继。开发版的「连接手机」已能经测试中继扫码配对并读取 Mac 名称。家庭 Wi-Fi 下扫码直连 Mac 服务仍是设计目标。[Mac 插件与本地复现](magpie-plugin/README.md)
+
+跨网续聊计划使用项目方运营的 Paseo Relay。中继转发手机与主机之间的端到端加密消息，Agent 在用户的主机上执行任务。中继入口地址可供客户端连接，Mac 单独验证设备授权。完整配对码含一次性授权票据，请仅交给要配对的设备。[Paseo Relay 开源项目](https://github.com/getpaseo/paseo-relay)
 
 ## 许可证
 
