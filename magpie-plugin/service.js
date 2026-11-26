@@ -12,11 +12,11 @@ let previousDevices;
 let pairingUntil = 0;
 let deviceToRevoke;
 
-async function call(action, id) {
+async function call(action, id, allowUsage) {
   const response = await fetch('control', {
     method: 'POST',
     headers: { 'Content-Type': 'text/plain;charset=UTF-8' },
-    body: JSON.stringify({ token: document.body.dataset.token, action, id }),
+    body: JSON.stringify({ token: document.body.dataset.token, action, id, allowUsage }),
     credentials: 'omit',
     cache: 'no-store',
   });
@@ -34,6 +34,7 @@ function showStatus(status) {
   el('start').hidden = status !== 'disabled';
   el('stop').hidden = status === 'disabled' || status === 'loading';
   el('issue').hidden = status !== 'online';
+  el('pair-usage-option').hidden = status !== 'online';
 }
 
 function renderDevices(devices, status) {
@@ -56,7 +57,21 @@ function renderDevices(devices, status) {
       el('confirm-label').textContent = `「${device.label}」将失去这台 Mac 的访问权限。`;
       el('confirm-revoke').showModal();
     });
-    row.append(label, button);
+    const actions = document.createElement('div');
+    actions.className = 'actions';
+    const usage = document.createElement('button');
+    const allowed = device.allowUsage === true;
+    usage.type = 'button';
+    usage.className = 'device-usage';
+    usage.textContent = allowed ? '用量已允许' : '用量未允许';
+    usage.setAttribute('aria-label', `允许「${device.label}」查看用量`);
+    usage.setAttribute('aria-pressed', String(allowed));
+    usage.addEventListener('click', () => perform(
+      () => call('usage.set', device.id, !allowed),
+      allowed ? '已关闭该设备的用量访问。' : '已允许该设备查看用量。',
+    ));
+    actions.append(usage, button);
+    row.append(label, actions);
     return row;
   }));
 }
@@ -105,7 +120,9 @@ el('stop').addEventListener('click', () => perform(async () => {
   clearPairing();
 }, '后台连接已关闭。'));
 el('issue').addEventListener('click', () => perform(async () => {
-  const { link, qr, expiresAt } = await call('issue');
+  const allowUsage = el('pair-usage').checked;
+  el('pair-usage').checked = false;
+  const { link, qr, expiresAt } = await call('issue', undefined, allowUsage);
   clearPairing();
   pairingUntil = expiresAt;
   el('link').value = link;

@@ -128,6 +128,17 @@
     <string name="usage_invalid_data">主机返回了无法读取的用量数据。</string>
     <string name="usage_key_missing">无法读取已保存的密钥，请重新配置连接。</string>
     <string name="usage_server_error">主机暂时无法提供用量，请稍后重试。</string>
+    <string name="usage_source_paired">已配对 Mac</string>
+    <string name="usage_source_manual">手动 HTTPS</string>
+    <string name="usage_pair_prompt">将此手机与 Mac 配对后即可查看用量。</string>
+    <string name="usage_open_pairing">打开「连接手机」</string>
+    <string name="usage_paired_offline">已配对的 Mac 当前离线。</string>
+    <string name="usage_paired_network_error">未能通过 Mac 连接读取用量。请确认 Mac 在线后重试。</string>
+    <string name="usage_device_not_authorized">此手机的授权已失效。请打开「连接手机」，重新与 Mac 配对。</string>
+    <string name="usage_paired_permission_denied">请在 Mac 的 Magpie 中打开「连接手机」，批准此手机查看用量，再回到这里重试。</string>
+    <string name="usage_paired_unavailable">已配对的 Mac 暂时无法提供用量。请检查 Mac 上的 Magpie 网关后重试。</string>
+    <string name="usage_paired_invalid_request">Mac 拒绝了此次用量请求。</string>
+    <string name="usage_paired_unsupported">此 Mac 不支持通过手机连接查看用量。请更新 Mac 上的 Magpie，或选择「手动 HTTPS」。</string>
     <string name="phone_title">连接手机</string>
     <string name="phone_unpaired">尚未配对 Mac</string>
     <string name="phone_connecting">正在连接…</string>

@@ -37,6 +37,7 @@ import com.andychen.magpie.shared.usage.UsageRow
 import com.andychen.magpie.shared.usage.UsageSummary
 import com.andychen.magpie.shared.usage.UsageTab
 import com.andychen.magpie_android.R
+import com.andychen.magpie_android.phone.PhoneStatus
 import com.andychen.magpie_android.ui.EmptyPanel
 import com.andychen.magpie_android.ui.InfoDialog
 import com.andychen.magpie_android.ui.InfoRow
@@ -60,13 +61,19 @@ internal fun LanUsagePage(
     onEdit: () -> Unit,
     onDisconnect: () -> Unit,
     onDemo: () -> Unit,
-    onPermissionSettings: () -> Unit
+    onPermissionSettings: () -> Unit,
+    onSelectMode: (UsageConnectionMode) -> Unit = {},
+    onOpenPhone: () -> Unit = {},
+    onReconnect: () -> Unit = {}
 ) {
     val usage = state.usage
     val formats = rememberUsageFormats()
     val origin = usage.origin
-    key(origin, usage.period, usage.tab) {
-        var detail by remember { mutableStateOf<UsageRow?>(null) }
+    val manualOrigin = state.manualOrigin ?: origin
+    val paired = state.mode == UsageConnectionMode.Paired
+    val connected = if (paired) state.pairedOnline else origin != null
+    key(state.mode, state.bindingRevision, origin, usage.period, usage.tab) {
+        var detail by remember(usage.requests.failure) { mutableStateOf<UsageRow?>(null) }
         LazyColumn(
             modifier = Modifier.fillMaxSize(),
             contentPadding = PaddingValues(horizontal = 16.dp, vertical = 12.dp),
@@ -80,31 +87,42 @@ internal fun LanUsagePage(
                 )
             }
             item {
-                MagpiePanel {
-                    Column(Modifier.padding(horizontal = 12.dp, vertical = 6.dp)) {
-                        Text(
-                            origin?.value ?: stringResource(R.string.usage_disconnected),
-                            style = MaterialTheme.typography.bodyMedium
-                        )
-                        Row {
-                            TextButton(onClick = onEdit, enabled = !state.working) {
-                                Text(stringResource(if (origin == null) R.string.usage_connect_title else R.string.usage_edit))
-                            }
-                            if (origin != null) {
-                                TextButton(onClick = onDisconnect, enabled = !state.working) {
-                                    Text(stringResource(R.string.usage_disconnect))
+                Segments(
+                    labels = listOf(stringResource(R.string.usage_source_paired), stringResource(R.string.usage_source_manual)),
+                    selected = state.mode.ordinal,
+                    onSelect = { onSelectMode(UsageConnectionMode.entries[it]) }
+                )
+            }
+            if (paired) {
+                item { PairedConnectionPanel(state, onOpenPhone, onReconnect) }
+            } else {
+                item {
+                    MagpiePanel {
+                        Column(Modifier.padding(horizontal = 12.dp, vertical = 6.dp)) {
+                            Text(
+                                manualOrigin?.value ?: stringResource(R.string.usage_disconnected),
+                                style = MaterialTheme.typography.bodyMedium
+                            )
+                            Row {
+                                TextButton(onClick = onEdit, enabled = !state.working) {
+                                    Text(stringResource(if (manualOrigin == null) R.string.usage_connect_title else R.string.usage_edit))
+                                }
+                                if (manualOrigin != null) {
+                                    TextButton(onClick = onDisconnect, enabled = !state.working) {
+                                        Text(stringResource(R.string.usage_disconnect))
+                                    }
                                 }
                             }
                         }
                     }
                 }
+                if (state.storageError) item { EmptyPanel(stringResource(R.string.usage_storage_error)) }
             }
-            if (state.storageError) item { EmptyPanel(stringResource(R.string.usage_storage_error)) }
             if (state.working) {
                 item { UsageLoading() }
                 return@LazyColumn
             }
-            if (origin == null) {
+            if (!connected) {
                 item { TextButton(onClick = onDemo) { Text(stringResource(R.string.usage_show_demo)) } }
                 return@LazyColumn
             }
@@ -122,7 +140,7 @@ internal fun LanUsagePage(
                     when (summary.phase) {
                         UsagePhase.IDLE, UsagePhase.LOADING -> UsageLoading()
                         UsagePhase.EMPTY -> EmptyPanel(stringResource(R.string.usage_empty))
-                        UsagePhase.ERROR -> UsageError(summary.failure, onRetry, onPermissionSettings)
+                        UsagePhase.ERROR -> UsageError(summary.failure, paired, onRetry, onPermissionSettings)
                         UsagePhase.READY -> summary.value?.let { SummaryPanel(it, formats) }
                     }
                 }
@@ -131,7 +149,7 @@ internal fun LanUsagePage(
                     when (requests.phase) {
                         UsagePhase.IDLE, UsagePhase.LOADING -> item { UsageLoading() }
                         UsagePhase.EMPTY -> item { EmptyPanel(stringResource(R.string.usage_empty)) }
-                        UsagePhase.ERROR -> item { UsageError(requests.failure, onRetry, onPermissionSettings) }
+                        UsagePhase.ERROR -> item { UsageError(requests.failure, paired, onRetry, onPermissionSettings) }
                         UsagePhase.READY -> {
                             requests.total?.let { total ->
                                 item { Text(stringResource(R.string.usage_rows_shown, requests.rows.size, total)) }
@@ -151,7 +169,7 @@ internal fun LanUsagePage(
                                 when {
                                     requests.loadingMore -> UsageLoading()
                                     requests.moreFailure != null ->
-                                        UsageError(requests.moreFailure, onRetry, onPermissionSettings)
+                                        UsageError(requests.moreFailure, paired, onRetry, onPermissionSettings)
                                     requests.nextOffset != null ->
                                         TextButton(onClick = onMore) { Text(stringResource(R.string.usage_next_page)) }
                                 }
@@ -161,13 +179,42 @@ internal fun LanUsagePage(
                 }
             }
         }
-        detail?.let { row ->
+        detail?.takeIf { it in usage.requests.rows }?.let { row ->
             InfoDialog(stringResource(R.string.request_detail), onDismiss = { detail = null }) {
                 DetailLine(R.string.request_time, formatTime(row.timestamp, formats))
                 DetailLine(R.string.agents, row.agent ?: stringResource(R.string.usage_unavailable_value))
                 DetailLine(R.string.model, row.model ?: stringResource(R.string.usage_unavailable_value))
                 DetailLine(R.string.request_status, statusLabel(row))
                 DetailLine(R.string.request_cost, row.costUsd?.let(formats::usd) ?: stringResource(R.string.usage_price_unknown))
+            }
+        }
+    }
+}
+
+@Composable
+private fun PairedConnectionPanel(state: LanUsageState, onOpenPhone: () -> Unit, onReconnect: () -> Unit) {
+    val status = state.phone.status
+    MagpiePanel {
+        Column(Modifier.padding(horizontal = 12.dp, vertical = 8.dp)) {
+            val message = when (status) {
+                PhoneStatus.Unpaired -> stringResource(R.string.usage_pair_prompt)
+                PhoneStatus.AuthorizationLost -> stringResource(R.string.usage_device_not_authorized)
+                PhoneStatus.Connecting -> stringResource(R.string.phone_connecting)
+                PhoneStatus.Connected, PhoneStatus.Disconnected -> if (state.pairedOnline) {
+                    state.phone.macName ?: stringResource(R.string.phone_connected)
+                } else {
+                    stringResource(R.string.usage_paired_offline)
+                }
+            }
+            Text(message, style = MaterialTheme.typography.bodyMedium)
+            when (status) {
+                PhoneStatus.Unpaired, PhoneStatus.AuthorizationLost -> TextButton(onClick = onOpenPhone) {
+                    Text(stringResource(R.string.usage_open_pairing))
+                }
+                PhoneStatus.Disconnected -> TextButton(onClick = onReconnect, enabled = state.phone.canRetry && !state.phone.scanning) {
+                    Text(stringResource(R.string.phone_retry))
+                }
+                else -> Unit
             }
         }
     }
@@ -233,10 +280,10 @@ private fun UsageLoading() {
 }
 
 @Composable
-private fun UsageError(failure: UsageFailure?, onRetry: () -> Unit, onPermissionSettings: () -> Unit) {
+private fun UsageError(failure: UsageFailure?, paired: Boolean, onRetry: () -> Unit, onPermissionSettings: () -> Unit) {
     MagpiePanel {
         Column(Modifier.padding(12.dp)) {
-            Text(stringResource(failure.label))
+            Text(stringResource(if (paired && failure == UsageFailure.NETWORK) R.string.usage_paired_network_error else failure.label))
             Row {
                 TextButton(onClick = onRetry) {
                     Text(stringResource(if (failure == UsageFailure.LOCAL_PERMISSION) R.string.usage_permission_retry else R.string.usage_retry))
@@ -269,6 +316,11 @@ private val UsageFailure?.label: Int get() = when (this) {
     UsageFailure.REDIRECT -> R.string.usage_redirect
     UsageFailure.INVALID_DATA -> R.string.usage_invalid_data
     UsageFailure.CREDENTIAL -> R.string.usage_key_missing
+    UsageFailure.DEVICE_NOT_AUTHORIZED -> R.string.usage_device_not_authorized
+    UsageFailure.USAGE_PERMISSION_DENIED -> R.string.usage_paired_permission_denied
+    UsageFailure.USAGE_UNAVAILABLE -> R.string.usage_paired_unavailable
+    UsageFailure.INVALID_REQUEST -> R.string.usage_paired_invalid_request
+    UsageFailure.UNSUPPORTED_REQUEST -> R.string.usage_paired_unsupported
     UsageFailure.SERVER, null -> R.string.usage_server_error
 }
 

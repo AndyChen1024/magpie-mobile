@@ -29,11 +29,15 @@ button:disabled { cursor: default; opacity: .55; }
 #pairing { display: flex; align-items: center; flex-wrap: wrap; gap: 14px; border-top: 1px solid var(--line); margin-top: 15px; padding-top: 14px; }
 #qr { width: 156px; height: 156px; image-rendering: pixelated; border-radius: 8px; }
 .pairing-info { flex: 1 1 190px; min-width: 0; }
-input { width: 100%; font: 12px ui-monospace, monospace; border: 1px solid var(--line); border-radius: 7px; padding: 7px 9px; color: CanvasText; background: Canvas; margin-bottom: 8px; }
+#pair-usage-option { display: flex; align-items: center; gap: 6px; margin-top: 9px; font-size: 13px; width: fit-content; }
+#link { width: 100%; font: 12px ui-monospace, monospace; border: 1px solid var(--line); border-radius: 7px; padding: 7px 9px; color: CanvasText; background: Canvas; margin-bottom: 8px; }
 ul { list-style: none; padding: 0; margin: 0; }
 li { border-top: 1px solid var(--line); margin-top: 9px; padding-top: 9px; }
 li span { overflow-wrap: anywhere; }
-li button { flex-shrink: 0; color: light-dark(#a02a32, #ffa6aa); }
+li .actions { justify-content: flex-end; flex-shrink: 0; max-width: 70%; }
+li button { flex-shrink: 0; }
+li button:not(.device-usage) { color: light-dark(#a02a32, #ffa6aa); }
+.device-usage[aria-pressed=true] { color: light-dark(#237144, #83d9a5); }
 #notice { min-height: 1.5em; }
 dialog { max-width: min(360px, 90vw); border: 1px solid var(--line); border-radius: 14px; padding: 20px; }
 dialog::backdrop { background: rgb(0 0 0 / 35%); }

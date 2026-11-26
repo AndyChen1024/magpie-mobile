@@ -64,7 +64,7 @@ class LanUsageScreenTest {
                 MagpieTheme(ThemeMode.Light) {
                     MagpieApp(ThemeMode.Light, onThemeChange = {}) {
                         LanUsagePage(
-                            LanUsageState(state, working = false),
+                            LanUsageState(state, working = false, mode = UsageConnectionMode.Manual),
                             onPeriod = controller::selectPeriod,
                             onTab = controller::openTab,
                             onRefresh = controller::refresh,

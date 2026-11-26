@@ -21,7 +21,7 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -48,22 +48,25 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
 @Composable
-internal fun LanUsageRoute(viewModel: LanUsageViewModel) {
+internal fun LanUsageRoute(viewModel: LanUsageViewModel, onOpenPhone: () -> Unit) {
     val context = LocalContext.current
     val state by viewModel.state.collectAsStateWithLifecycle()
     var demo by rememberSaveable { mutableStateOf(false) }
     var editing by rememberSaveable { mutableStateOf(false) }
     var confirmingDisconnect by remember { mutableStateOf(false) }
     val permission = rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) { granted ->
-        if (granted) viewModel.retry()
+        if (granted && viewModel.state.value.mode == UsageConnectionMode.Manual) viewModel.retry()
     }
 
     fun requestPermissionOrRetry() {
-        if (hasLocalNetworkPermission(context)) viewModel.retry()
+        if (state.mode == UsageConnectionMode.Paired || hasLocalNetworkPermission(context)) viewModel.retry()
         else permission.launch(Manifest.permission.ACCESS_LOCAL_NETWORK)
     }
 
-    LaunchedEffect(viewModel) { viewModel.restoreConnection() }
+    DisposableEffect(viewModel, demo) {
+        viewModel.setVisible(!demo)
+        onDispose { viewModel.setVisible(false) }
+    }
 
     if (demo) {
         Column(
@@ -87,15 +90,18 @@ internal fun LanUsageRoute(viewModel: LanUsageViewModel) {
             onEdit = { editing = true },
             onDisconnect = { confirmingDisconnect = true },
             onDemo = { demo = true },
+            onSelectMode = viewModel::selectMode,
+            onOpenPhone = onOpenPhone,
+            onReconnect = viewModel::reconnect,
             onPermissionSettings = {
                 context.startActivity(Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS, Uri.fromParts("package", context.packageName, null)))
             }
         )
     }
 
-    if (editing) {
+    if (editing && state.mode == UsageConnectionMode.Manual) {
         ConnectionDialog(
-            initialOrigin = state.usage.origin,
+            initialOrigin = state.manualOrigin,
             hasSavedCertificate = state.hasCustomCertificate,
             onDismiss = { editing = false },
             onConnect = { origin, key, certificate, keepSavedCertificate ->
@@ -108,7 +114,7 @@ internal fun LanUsageRoute(viewModel: LanUsageViewModel) {
         )
     }
 
-    if (confirmingDisconnect) {
+    if (confirmingDisconnect && state.mode == UsageConnectionMode.Manual) {
         AlertDialog(
             onDismissRequest = { confirmingDisconnect = false },
             title = { Text(stringResource(R.string.usage_disconnect)) },

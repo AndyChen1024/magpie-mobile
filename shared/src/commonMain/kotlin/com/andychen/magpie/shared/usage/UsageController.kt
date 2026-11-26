@@ -17,19 +17,28 @@ class UsageObservation internal constructor(private val job: Job) {
     fun cancel() = job.cancel()
 }
 
-class UsageController internal constructor(
-    private val transport: UsageTransport,
-    private val credentials: UsageCredentials,
+class UsageController private constructor(
+    private val httpsSource: ((UsageOrigin) -> UsageQuerySource)?,
     dispatcher: CoroutineDispatcher,
-    private val parserDispatcher: CoroutineDispatcher = dispatcher
+    private val parserDispatcher: CoroutineDispatcher
 ) {
+    constructor() : this(null, Dispatchers.Main.immediate, Dispatchers.Default)
+
     constructor(transport: UsageTransport, credentials: UsageCredentials) :
         this(transport, credentials, Dispatchers.Main.immediate, Dispatchers.Default)
+
+    internal constructor(
+        transport: UsageTransport,
+        credentials: UsageCredentials,
+        dispatcher: CoroutineDispatcher,
+        parserDispatcher: CoroutineDispatcher = dispatcher
+    ) : this({ HttpsUsageQuerySource(it, transport, credentials, parserDispatcher) }, dispatcher, parserDispatcher)
 
     private val scope = CoroutineScope(SupervisorJob() + dispatcher)
     private val states = MutableStateFlow(UsageState())
     val state: UsageState get() = states.value
 
+    private var source: UsageQuerySource? = null
     private var summaryJob: Job? = null
     private var requestsJob: Job? = null
     private var revision = 0L
@@ -41,16 +50,31 @@ class UsageController internal constructor(
     fun connect(origin: UsageOrigin) = restore(origin, UsagePeriod.TODAY, UsageTab.OVERVIEW)
 
     fun restore(origin: UsageOrigin, period: UsagePeriod, tab: UsageTab) {
-        scope.launch { replaceQuery(UsageState(origin = origin, period = period, tab = tab)) }
+        val createSource = checkNotNull(httpsSource) { "HTTPS transport and credentials are required for an HTTPS origin" }
+        scope.launch {
+            source = createSource(origin)
+            replaceQuery(UsageState(origin = origin, period = period, tab = tab))
+        }
+    }
+
+    /** Each source is bound to one connection. Replace it when that connection changes. */
+    fun restoreSource(source: UsageQuerySource, period: UsagePeriod, tab: UsageTab) {
+        scope.launch {
+            this@UsageController.source = source
+            replaceQuery(UsageState(period = period, tab = tab))
+        }
     }
 
     fun disconnect() {
-        scope.launch { replaceQuery(UsageState()) }
+        scope.launch {
+            source = null
+            replaceQuery(UsageState())
+        }
     }
 
     fun selectPeriod(period: UsagePeriod) {
         scope.launch {
-            if (state.origin != null && period != state.period) {
+            if (source != null && period != state.period) {
                 replaceQuery(UsageState(origin = state.origin, period = period, tab = state.tab))
             }
         }
@@ -58,7 +82,7 @@ class UsageController internal constructor(
 
     fun openTab(tab: UsageTab) {
         scope.launch {
-            if (state.origin == null || state.tab == tab) return@launch
+            if (source == null || state.tab == tab) return@launch
             states.value = state.copy(tab = tab)
             when (tab) {
                 UsageTab.OVERVIEW -> if (state.summary.phase == UsagePhase.IDLE) loadSummary()
@@ -85,11 +109,28 @@ class UsageController internal constructor(
     fun close() = scope.cancel()
 
     private fun replaceQuery(next: UsageState) {
+        invalidateJobs()
+        states.value = next
+        loadCurrentTab()
+    }
+
+    private fun invalidateJobs() {
         revision++
         summaryJob?.cancel()
         requestsJob?.cancel()
-        states.value = next
-        loadCurrentTab()
+    }
+
+    private fun clearDeniedData(failure: UsageFailure?): Boolean {
+        if (failure != UsageFailure.DEVICE_NOT_AUTHORIZED && failure != UsageFailure.USAGE_PERMISSION_DENIED) {
+            return false
+        }
+        if (failure == UsageFailure.DEVICE_NOT_AUTHORIZED) source = null
+        invalidateJobs()
+        states.value = state.copy(
+            summary = SummaryState(UsagePhase.ERROR, failure = failure),
+            requests = RequestsState(UsagePhase.ERROR, failure = failure)
+        )
+        return true
     }
 
     private fun loadCurrentTab() {
@@ -101,32 +142,36 @@ class UsageController internal constructor(
 
     private fun loadSummary() {
         val query = state
-        val origin = query.origin ?: return
+        val source = source ?: return
         val expected = revision
         summaryJob?.cancel()
         states.value = query.copy(summary = SummaryState(phase = UsagePhase.LOADING))
         summaryJob = scope.launch {
-            val path = "/v1/magpie/usage?period=${query.period.parameter}"
-            val response = fetch(origin, path)
+            val response = fetch { source.summary(query.period) }
             currentCoroutineContext().ensureActive()
-            if (expected != revision) return@launch
-            val (failure, value) = withContext(parserDispatcher) {
-                val reason = response.httpFailure(UsageTab.OVERVIEW)
-                reason to if (reason == null) parseSummary(response.body) else null
+            if (expected != revision || clearDeniedData(response.failure)) return@launch
+            val value = withContext(parserDispatcher) {
+                if (response.failure == null) parseSummary(response.body) else null
             }
             val summary = if (value == null) {
-                SummaryState(UsagePhase.ERROR, failure = failure ?: UsageFailure.INVALID_DATA)
+                SummaryState(UsagePhase.ERROR, failure = response.failure ?: UsageFailure.INVALID_DATA)
             } else {
                 val empty = value.calls == 0L && value.errors == 0L && value.tokens == 0L &&
                     value.costUsd == 0.0 && value.unpriced == 0L
                 SummaryState(if (empty) UsagePhase.EMPTY else UsagePhase.READY, value = value)
             }
-            states.value = state.copy(summary = summary)
+            val requests = state.requests
+            states.value = state.copy(
+                summary = summary,
+                requests = if (value != null && requests.failure == UsageFailure.USAGE_PERMISSION_DENIED) {
+                    RequestsState()
+                } else requests
+            )
         }
     }
 
     private fun loadFirstPage() {
-        if (state.origin == null) return
+        if (source == null) return
         requestsJob?.cancel()
         states.value = state.copy(requests = RequestsState(phase = UsagePhase.LOADING))
         loadRequests(offset = 0, append = false)
@@ -142,20 +187,18 @@ class UsageController internal constructor(
 
     private fun loadRequests(offset: Long, append: Boolean) {
         val query = state
-        val origin = query.origin ?: return
+        val source = source ?: return
         val expected = revision
         requestsJob = scope.launch {
-            val path = "/v1/magpie/usage/requests?period=${query.period.parameter}&offset=$offset&limit=$USAGE_PAGE_SIZE"
-            val response = fetch(origin, path)
+            val response = fetch { source.requests(query.period, offset, USAGE_PAGE_SIZE) }
             currentCoroutineContext().ensureActive()
-            if (expected != revision) return@launch
-            val (failure, page) = withContext(parserDispatcher) {
-                val reason = response.httpFailure(UsageTab.REQUESTS)
-                reason to if (reason == null) parsePage(response.body, offset) else null
+            if (expected != revision || clearDeniedData(response.failure)) return@launch
+            val page = withContext(parserDispatcher) {
+                if (response.failure == null) parsePage(response.body, offset) else null
             }
             val previous = state.requests
             val requests = if (page == null) {
-                val reason = failure ?: UsageFailure.INVALID_DATA
+                val reason = response.failure ?: UsageFailure.INVALID_DATA
                 if (append) previous.copy(loadingMore = false, moreFailure = reason)
                 else RequestsState(UsagePhase.ERROR, failure = reason)
             } else {
@@ -167,28 +210,21 @@ class UsageController internal constructor(
                     nextOffset = page.nextOffset
                 )
             }
-            states.value = state.copy(requests = requests)
+            val summary = state.summary
+            states.value = state.copy(
+                requests = requests,
+                summary = if (page != null && summary.failure == UsageFailure.USAGE_PERMISSION_DENIED) {
+                    SummaryState()
+                } else summary
+            )
         }
     }
 
-    private suspend fun fetch(origin: UsageOrigin, path: String): UsageHttpResponse {
-        val key = try {
-            credentials.read(origin)
-        } catch (cancelled: CancellationException) {
-            throw cancelled
-        } catch (_: Exception) {
-            null
-        }
-        currentCoroutineContext().ensureActive()
-        if (key.isNullOrBlank() || key.any { it.code !in 33..126 }) {
-            return UsageHttpResponse(0, "", UsageFailure.CREDENTIAL)
-        }
-        return try {
-            transport.get(UsageHttpRequest(origin.value + path, "Bearer $key"))
-        } catch (cancelled: CancellationException) {
-            throw cancelled
-        } catch (_: Exception) {
-            UsageHttpResponse(0, "", UsageFailure.NETWORK)
-        }
+    private suspend fun fetch(query: suspend () -> UsageQueryResult): UsageQueryResult = try {
+        query()
+    } catch (cancelled: CancellationException) {
+        throw cancelled
+    } catch (_: Exception) {
+        UsageQueryResult("", UsageFailure.NETWORK)
     }
 }

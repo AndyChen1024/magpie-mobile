@@ -140,6 +140,114 @@ class UsageControllerTest {
         }
     }
 
+    @Test
+    fun fixedSourcesIgnoreLateRepliesAcrossHttpsAndPairedConnections() = runTest {
+        val harness = Harness(this)
+        val controller = harness.controller
+        val firstMac = HeldSource()
+        val replacementMac = HeldSource()
+        try {
+            controller.connect(harness.first)
+            runCurrent()
+            val staleHttps = harness.calls.removeFirst()
+
+            controller.restoreSource(firstMac, UsagePeriod.WEEK, UsageTab.REQUESTS)
+            runCurrent()
+            assertNull(controller.state.origin)
+            assertEquals(Triple(UsagePeriod.WEEK, 0L, 50), firstMac.pageQueries.single())
+            firstMac.pages.removeFirst().resume(UsageQueryResult(UsageFixtures.page(0, 3, UsageFixtures.row)))
+            staleHttps.respond(200, UsageFixtures.summary)
+            runCurrent()
+            assertNull(controller.state.summary.value)
+            assertEquals(1L, controller.state.requests.nextOffset)
+
+            controller.loadMore()
+            runCurrent()
+            assertEquals(Triple(UsagePeriod.WEEK, 1L, 50), firstMac.pageQueries.last())
+            val stalePage = firstMac.pages.removeFirst()
+            controller.restoreSource(replacementMac, UsagePeriod.WEEK, UsageTab.REQUESTS)
+            runCurrent()
+            assertTrue(controller.state.requests.rows.isEmpty())
+            assertEquals(Triple(UsagePeriod.WEEK, 0L, 50), replacementMac.pageQueries.single())
+            stalePage.resume(UsageQueryResult(UsageFixtures.page(1, 3, UsageFixtures.row)))
+            runCurrent()
+            assertEquals(UsagePhase.LOADING, controller.state.requests.phase)
+
+            val staleReplacement = replacementMac.pages.removeFirst()
+            controller.connect(harness.first)
+            runCurrent()
+            harness.complete(200, UsageFixtures.summary)
+            staleReplacement.resume(UsageQueryResult("", UsageFailure.DEVICE_NOT_AUTHORIZED))
+            runCurrent()
+            assertEquals(harness.first, controller.state.origin)
+            assertEquals(3L, controller.state.summary.value?.calls)
+            assertTrue(controller.state.requests.rows.isEmpty())
+        } finally {
+            harness.close()
+        }
+    }
+
+    @Test
+    fun pairedDenialClearsBothTabsAndRevocationStopsQueriesUntilRebound() = runTest {
+        val harness = Harness(this)
+        val controller = harness.controller
+        val source = HeldSource()
+        try {
+            controller.restoreSource(source, UsagePeriod.MONTH, UsageTab.REQUESTS)
+            runCurrent()
+            source.pages.removeFirst().resume(UsageQueryResult(UsageFixtures.page(0, 2, UsageFixtures.row)))
+            runCurrent()
+            controller.openTab(UsageTab.OVERVIEW)
+            runCurrent()
+            source.summaries.removeFirst().resume(UsageQueryResult(UsageFixtures.summary))
+            runCurrent()
+            assertEquals(3L, controller.state.summary.value?.calls)
+            assertEquals(1, controller.state.requests.rows.size)
+
+            controller.openTab(UsageTab.REQUESTS)
+            controller.loadMore()
+            runCurrent()
+            source.pages.removeFirst().resume(UsageQueryResult("", UsageFailure.USAGE_PERMISSION_DENIED))
+            runCurrent()
+            assertNull(controller.state.summary.value)
+            assertTrue(controller.state.requests.rows.isEmpty())
+            assertNull(controller.state.requests.nextOffset)
+            assertEquals(UsageFailure.USAGE_PERMISSION_DENIED, controller.state.summary.failure)
+            assertEquals(UsageFailure.USAGE_PERMISSION_DENIED, controller.state.requests.failure)
+
+            controller.retry()
+            runCurrent()
+            assertEquals(Triple(UsagePeriod.MONTH, 0L, 50), source.pageQueries.last())
+            source.pages.removeFirst().resume(UsageQueryResult(UsageFixtures.page(0, 1, UsageFixtures.row)))
+            runCurrent()
+            controller.openTab(UsageTab.OVERVIEW)
+            runCurrent()
+            source.summaries.removeFirst().resume(UsageQueryResult("", UsageFailure.DEVICE_NOT_AUTHORIZED))
+            runCurrent()
+            assertTrue(controller.state.requests.rows.isEmpty())
+            assertEquals(UsageFailure.DEVICE_NOT_AUTHORIZED, controller.state.summary.failure)
+            controller.retry()
+            runCurrent()
+            assertTrue(source.summaries.isEmpty())
+        } finally {
+            harness.close()
+        }
+    }
+
+    private class HeldSource : UsageQuerySource {
+        val summaries = ArrayDeque<Continuation<UsageQueryResult>>()
+        val pages = ArrayDeque<Continuation<UsageQueryResult>>()
+        val pageQueries = mutableListOf<Triple<UsagePeriod, Long, Int>>()
+
+        override suspend fun summary(period: UsagePeriod): UsageQueryResult =
+            suspendCoroutine { summaries.addLast(it) }
+
+        override suspend fun requests(period: UsagePeriod, offset: Long, limit: Int): UsageQueryResult {
+            pageQueries += Triple(period, offset, limit)
+            return suspendCoroutine { pages.addLast(it) }
+        }
+    }
+
     private class Harness(private val scope: TestScope) {
         val first = UsageOrigin.parse("https://first.local")!!
         var secondKey = "key-second"

@@ -85,19 +85,25 @@ internal fun MagpieApp(
     theme: ThemeMode,
     onThemeChange: (ThemeMode) -> Unit,
     phoneContent: @Composable () -> Unit = {},
-    usageContent: @Composable () -> Unit
+    usageContent: @Composable (openPhone: () -> Unit) -> Unit
 ) {
     var page by rememberSaveable { mutableStateOf(Page.Agents) }
     var previousPage by rememberSaveable { mutableStateOf(Page.Agents) }
+    var phoneBackPage by rememberSaveable { mutableStateOf(Page.Agents) }
     val pageStates = rememberSaveableStateHolder()
 
     fun navigate(destination: Page) {
         if (destination == Page.Settings) previousPage = page
+        if (destination == Page.Phone) phoneBackPage = if (page == Page.Usage) Page.Usage else Page.Agents
         page = destination
     }
 
     fun goBack() {
-        page = if (page == Page.Settings) previousPage else Page.Agents
+        page = when (page) {
+            Page.Settings -> previousPage
+            Page.Phone -> phoneBackPage
+            else -> Page.Agents
+        }
     }
 
     BackHandler(enabled = page != Page.Agents, onBack = ::goBack)
@@ -117,7 +123,7 @@ internal fun MagpieApp(
         ) {
             pageStates.SaveableStateProvider(page.name) {
                 if (page == Page.Usage) {
-                    Box(Modifier.widthIn(max = 640.dp).fillMaxSize()) { usageContent() }
+                    Box(Modifier.widthIn(max = 640.dp).fillMaxSize()) { usageContent { navigate(Page.Phone) } }
                     return@SaveableStateProvider
                 }
                 Column(

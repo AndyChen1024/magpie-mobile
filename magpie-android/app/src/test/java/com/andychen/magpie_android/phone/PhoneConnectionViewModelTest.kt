@@ -1,6 +1,9 @@
 package com.andychen.magpie_android.phone
 
 import androidx.lifecycle.viewModelScope
+import com.andychen.magpie.shared.usage.UsageFailure
+import com.andychen.magpie.shared.usage.UsagePeriod
+import com.andychen.magpie_android.usage.PairedUsageSource
 import com.southernstorm.noise.protocol.HandshakeState
 import java.io.Closeable
 import java.io.IOException
@@ -15,6 +18,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.asCoroutineDispatcher
+import kotlinx.coroutines.async
 import kotlinx.coroutines.cancelAndJoin
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.resetMain
@@ -34,12 +38,41 @@ import okhttp3.mockwebserver.RecordedRequest
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNotEquals
+import org.junit.Assert.assertNull
 import org.junit.Assert.assertSame
 import org.junit.Assert.assertTrue
 import org.junit.Test
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class PhoneConnectionViewModelTest {
+    @Test
+    fun usageAndHostReadsReceiveTheirOwnRepliesWhenTheMacAnswersOutOfOrder() = runBlocking {
+        FakeMac().use { mac ->
+            val usageRequest = CompletableDeferred<JsonObject>()
+            mac.onRequest = { connection, request ->
+                when (request.string("type")) {
+                    "usage.summary" -> usageRequest.complete(request)
+                    "host.get" -> {
+                        connection.replyHost(request, "Test Mac")
+                        connection.reply(usageRequest.getCompleted(), buildJsonObject {
+                            put("error", "usage_permission_denied")
+                        })
+                    }
+                }
+            }
+            PhoneRelaySession(PhoneRelaySession.client(), mac.offer).use { session ->
+                session.handshake()
+                session.authorize(PhoneIdentity.generate(), ticket = null, label = "")
+                val usage = async {
+                    session.exchange("usage.summary", buildJsonObject { put("period", "today") }, 5_000)
+                }
+                withTimeout(5_000) { usageRequest.await() }
+                assertEquals("Test Mac", session.readHost().displayName)
+                assertEquals("usage_permission_denied", usage.await().string("error"))
+            }
+        }
+    }
+
     @Test
     fun reconnectNowRestartsTheSavedIdentityEvenDuringAnAutomaticAttempt() = withDisconnectedPhone {
         val retryReading = CompletableDeferred<Unit>()
@@ -53,6 +86,29 @@ class PhoneConnectionViewModelTest {
         respondWithOldName()
         reconnectOld()
         assertEquals(3, oldMac.count("device.auth"))
+    }
+
+    @Test
+    fun deviceRevocationInAUsageReplyRequiresPairingAgain() = withDisconnectedPhone {
+        respondWithOldName()
+        reconnectOld()
+        val session = checkNotNull(model.session.value)
+        oldMac.onRequest = { connection, request ->
+            if (request.string("type") == "usage.summary") {
+                connection.reply(request, buildJsonObject { put("error", "device_not_authorized") })
+            }
+        }
+        val source = PairedUsageSource(
+            { type, fields -> session.exchange(type, fields, timeoutMs = 5_000) },
+            { model.session.value === session && session.isOpen },
+            session::authorizationLost
+        )
+        assertEquals(UsageFailure.DEVICE_NOT_AUTHORIZED, source.summary(UsagePeriod.TODAY).failure)
+        until { model.state.value.status == PhoneStatus.AuthorizationLost }
+        assertNull(model.session.value)
+        assertTrue(store.saved.requiresPairing)
+        assertEquals(oldProfile.identity.publicKey, store.saved.identity.publicKey)
+        assertFalse(model.state.value.canRetry)
     }
 
     @Test
@@ -142,6 +198,7 @@ class PhoneConnectionViewModelTest {
         // This reply was already in flight when the user opened the camera.
         oldConnection.replyHost(oldRequest, "Old Mac")
         assertTrue(model.state.value.scanning)
+        assertNull(model.session.value)
 
         FakeMac().use { candidateMac ->
             val pair = CompletableDeferred<Pair<FakeMac.Connection, JsonObject>>()
@@ -166,6 +223,7 @@ class PhoneConnectionViewModelTest {
             candidateConnection.acceptPairing(pairRequest)
             val candidate = withTimeout(5_000) { saveStarted.await() }
             assertSame(oldProfile, store.saved)
+            assertNull(model.session.value)
             assertEquals(0, candidateMac.count("host.get"))
             allowSave.complete(Unit)
 
@@ -275,7 +333,7 @@ private suspend fun until(condition: () -> Boolean) = withTimeout(10_000) {
  * A relay and Mac in one local WebSocket server. It runs the responder side of
  * the protected handshake and accepts any device.
  */
-private class FakeMac : Closeable {
+internal class FakeMac : Closeable {
     private val server = MockWebServer()
     private val privateKey = ByteArray(32)
     private val publicKey = ByteArray(32)

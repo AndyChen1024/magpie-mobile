@@ -1,12 +1,18 @@
 package com.andychen.magpie_android.phone
 
 import kotlinx.coroutines.CompletableDeferred
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.cancel
 import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.selects.onTimeout
 import kotlinx.coroutines.selects.select
 import kotlinx.coroutines.withTimeout
 import kotlinx.serialization.json.JsonObject
+import kotlinx.serialization.json.JsonPrimitive
 import kotlinx.serialization.json.buildJsonObject
 import kotlinx.serialization.json.put
 import okhttp3.OkHttpClient
@@ -18,11 +24,16 @@ import okio.ByteString
 import java.io.Closeable
 import java.io.IOException
 import java.util.UUID
+import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.TimeUnit
 
 internal class PhoneServerError(val code: String) : Exception()
 internal class PhoneProtocolError : Exception()
 
+/**
+ * One protected connection to the Mac. After the handshake, replies are routed
+ * to their requests by `id`.
+ */
 internal class PhoneRelaySession(
     client: OkHttpClient,
     private val offer: PhoneOffer,
@@ -30,8 +41,20 @@ internal class PhoneRelaySession(
     private val inbox = Channel<String>(16)
     private val opened = CompletableDeferred<Unit>()
     private val closed = CompletableDeferred<Unit>()
-    private var channel: PaseoProtectedChannel? = null
+    private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
+    private val pending = ConcurrentHashMap<String, CompletableDeferred<JsonObject>>()
+    private val cipherLock = Any()
+    @Volatile private var channel: PaseoProtectedChannel? = null
     private lateinit var nonce: String
+
+    val isOpen: Boolean get() = !closed.isCompleted
+
+    /** Route a device revocation from any protected request through the connection owner. */
+    fun authorizationLost() {
+        end(PhoneServerError("device_not_authorized"))
+        socket.cancel()
+    }
+
     private val socket = client.newWebSocket(Request.Builder().url(offer.relayUrl).build(), object : WebSocketListener() {
         override fun onOpen(webSocket: WebSocket, response: Response) {
             opened.complete(Unit)
@@ -63,12 +86,12 @@ internal class PhoneRelaySession(
     suspend fun handshake() = withTimeout(12_000) {
         opened.await()
         PaseoHandshake(offer.macPublicKey).use { handshake ->
-            send(handshake.hello)
+            socketSend(handshake.hello)
             while (channel == null) {
                 // A relay may open the client socket before the Mac peer joins it.
                 select {
                     inbox.onReceive { incoming -> channel = handshake.accept(incoming) }
-                    onTimeout(1_000) { send(handshake.hello) }
+                    onTimeout(1_000) { socketSend(handshake.hello) }
                 }
             }
         }
@@ -76,6 +99,8 @@ internal class PhoneRelaySession(
         require(challenge.string("type") == "challenge" && challenge.string("serverId") == offer.serverId)
         nonce = challenge.string("nonce")
         decodeBase64Url(nonce, 32)
+        // From here one reader decrypts every record in arrival order.
+        scope.launch { route() }
     }
 
     suspend fun authorize(identity: PhoneIdentity, ticket: String?, label: String) {
@@ -101,13 +126,47 @@ internal class PhoneRelaySession(
         refresh.onReceive { }
     }
 
-    private suspend fun request(type: String, fields: JsonObject = JsonObject(emptyMap())) = withTimeout(8_000) {
+    /**
+     * Writes one request and returns the Mac's reply, including a reply that
+     * reports an error. Throws when no reply arrives: the Mac may still have
+     * received the request.
+     */
+    suspend fun exchange(type: String, fields: JsonObject, timeoutMs: Long): JsonObject {
         val id = UUID.randomUUID().toString()
-        send(checkNotNull(channel).encode(phoneRequest(type, id, fields).toString()))
-        val reply = receiveProtected()
-        require(reply.string("type") == "result" && reply.string("id") == id)
+        val reply = CompletableDeferred<JsonObject>()
+        pending[id] = reply
+        try {
+            // Completes a request that raced with the end of the connection.
+            if (closed.isCompleted) closed.await()
+            sendProtected(phoneRequest(type, id, fields).toString())
+            return withTimeout(timeoutMs) { reply.await() }
+        } catch (error: IOException) {
+            if (closed.isCompleted) closed.await()
+            throw error
+        } finally {
+            pending.remove(id)
+        }
+    }
+
+    private suspend fun request(type: String, fields: JsonObject = JsonObject(emptyMap())): Pair<String, JsonObject> {
+        val reply = exchange(type, fields, 8_000)
         if ("error" in reply) throw PhoneServerError(reply.string("error"))
-        id to reply
+        return reply.string("id") to reply
+    }
+
+    private suspend fun route() {
+        try {
+            while (true) {
+                val message = receiveProtected()
+                when ((message["type"] as? JsonPrimitive)?.takeIf { it.isString }?.content) {
+                    "result" -> pending.remove(message.string("id"))?.complete(message)
+                    // Other record types belong to a newer Mac.
+                }
+            }
+        } catch (error: Exception) {
+            end(if (error is IOException) error else PhoneProtocolError())
+            socket.cancel()
+        }
     }
 
     private suspend fun receiveProtected(): JsonObject {
@@ -116,24 +175,34 @@ internal class PhoneRelaySession(
             val text = inbox.receive()
             // The Mac may send a second ready in response to an in-flight hello retry.
             if (text.startsWith("{") && parseObject(text).string("type") == "e2ee_ready") continue
-            return parseObject(secure.decode(text)).also { require(it.number("v") == 1) }
+            return parseObject(synchronized(cipherLock) { secure.decode(text) }).also { require(it.number("v") == 1) }
         }
     }
 
-    private fun send(text: String) {
+    private fun sendProtected(text: String) {
+        val secure = checkNotNull(channel)
+        // The record counter and the socket queue must advance together.
+        synchronized(cipherLock) {
+            socketSend(secure.encode(text))
+        }
+    }
+
+    private fun socketSend(text: String) {
         if (!socket.send(text)) throw IOException()
     }
 
     private fun end(error: Exception) {
+        if (!closed.completeExceptionally(error)) return
         opened.completeExceptionally(error)
         inbox.close(error)
-        closed.completeExceptionally(error)
+        for (id in pending.keys) pending.remove(id)?.completeExceptionally(error)
     }
 
     override fun close() {
         end(IOException())
         socket.cancel()
-        channel?.close()
+        scope.cancel()
+        synchronized(cipherLock) { channel?.close() }
     }
 
     companion object {

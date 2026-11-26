@@ -27,6 +27,7 @@ class MainActivity : ComponentActivity() {
         val preferences = getPreferences(MODE_PRIVATE)
         val usage by viewModels<LanUsageViewModel>()
         val phone = ViewModelProvider(this, PhoneConnectionViewModel.Factory)[PhoneConnectionViewModel::class.java]
+        usage.bindPhone(phone)
         setContent {
             var theme by remember {
                 val savedTheme = preferences.getString("theme", null)
@@ -40,7 +41,7 @@ class MainActivity : ComponentActivity() {
                         preferences.edit { putString("theme", selected.name) }
                     },
                     phoneContent = { PhoneConnectionPage(phone) },
-                    usageContent = { LanUsageRoute(usage) }
+                    usageContent = { openPhone -> LanUsageRoute(usage, onOpenPhone = openPhone) }
                 )
             }
         }

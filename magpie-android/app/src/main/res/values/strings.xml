@@ -131,6 +131,17 @@
     <string name="usage_invalid_data">The host returned unreadable usage data.</string>
     <string name="usage_key_missing">Could not read the saved gateway key. Set up the connection again.</string>
     <string name="usage_server_error">The host could not load usage data. Try again later.</string>
+    <string name="usage_source_paired">Paired Mac</string>
+    <string name="usage_source_manual">Manual HTTPS</string>
+    <string name="usage_pair_prompt">Pair this phone with your Mac to view usage.</string>
+    <string name="usage_open_pairing">Open Connect Phone</string>
+    <string name="usage_paired_offline">The paired Mac is offline.</string>
+    <string name="usage_paired_network_error">Could not load usage over the Mac connection. Check that the Mac is online and try again.</string>
+    <string name="usage_device_not_authorized">This phone is no longer authorized. Open Connect Phone to pair with the Mac again.</string>
+    <string name="usage_paired_permission_denied">On your Mac, open Connect Phone in Magpie and approve usage access for this phone, then retry here.</string>
+    <string name="usage_paired_unavailable">Usage is unavailable on the paired Mac. Check the Magpie gateway on the Mac and retry.</string>
+    <string name="usage_paired_invalid_request">The Mac rejected this usage request.</string>
+    <string name="usage_paired_unsupported">This Mac does not support usage over the phone connection. Update Magpie on your Mac or choose Manual HTTPS.</string>
     <string name="phone_title">Connect Phone</string>
     <string name="phone_unpaired">No Mac paired</string>
     <string name="phone_connecting">Connecting…</string>

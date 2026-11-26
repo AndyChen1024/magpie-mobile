@@ -7,9 +7,9 @@ import { macCompanion } from './launch-agent.mjs';
 
 const defaultPort = 18647;
 
-function callCompanion(socketPath, action, id) {
+function callCompanion(socketPath, action, id, allowUsage) {
   return new Promise((resolve, reject) => {
-    const body = JSON.stringify({ action, id });
+    const body = JSON.stringify({ action, id, allowUsage });
     const req = request({
       socketPath, path: '/', method: 'POST', headers: { 'Content-Length': Buffer.byteLength(body) },
     }, (res) => {
@@ -38,7 +38,7 @@ export async function PageService(_input, options) {
   const script = readFileSync(new URL('./service.js', import.meta.url), 'utf8');
   const icon = readFileSync(new URL('./icon.png', import.meta.url)).toString('base64');
 
-  async function control({ token, action, id }) {
+  async function control({ token, action, id, allowUsage }) {
     if (typeof token !== 'string' || token.length !== secret.length ||
         Buffer.byteLength(token) !== secret.length ||
         !timingSafeEqual(Buffer.from(token), Buffer.from(secret))) return { error: 'forbidden' };
@@ -53,7 +53,7 @@ export async function PageService(_input, options) {
 
     let result;
     try {
-      result = await callCompanion(companion.socketPath, action, id);
+      result = await callCompanion(companion.socketPath, action, id, allowUsage);
     } catch {
       if (action === 'status') {
         return { status: companion.configured() ? 'unavailable' : 'disabled', devices: [] };
@@ -106,5 +106,11 @@ export async function PageService(_input, options) {
     server.once('error', reject);
     server.listen(port, '127.0.0.1', resolve);
   });
+  try {
+    companion.publishUsageGateway(process.env.MAGPIE_ADDR);
+  } catch (error) {
+    server.close();
+    throw error;
+  }
   return {};
 }

@@ -125,4 +125,22 @@ Paseo 的 protected 握手验证主机公钥，客户端握手密钥是临时的
 3. 使用设备私钥签名 UTF-8 文本。依次用 LF 拼接 `magpie-connect-phone/v1`、`serverId`、`nonce`、操作名、`publicKey`、`ticket`。重连时最后一项为空，因此签名文本以 LF 结尾。
 4. 授权回执返回 `deviceId`。然后发送 `{"v":1,"type":"host.get","id":"每次新建"}`，核对回执中的同一 `id`、`hostId`、`displayName`、`receipt`。收到 `device_not_authorized` 时提示需要重新配对。参考实现见 [协议](protocol.mjs) 和 [客户端](tools/test-client.mjs)。
 
+### 已配对设备的用量
+
+Mac 的「已授权设备」列表可单独开启或关闭每台设备的用量访问。已有设备默认关闭。生成配对码前可为本次新设备勾选「允许本次配对的新设备查看用量」，生成后复位。用同一设备密钥重新配对会保留现有权限，完整撤销设备会清除权限。
+
+已通过 `device.pair` 或 `device.auth` 的手机，可在同一 protected 会话发送 `usage.summary`（顶层 `period`）或 `usage.requests`（顶层 `period`、`offset`、`limit`）。`period` 取 `today`、`7d`、`30d`，请求明细从 `offset: 0` 开始，传 `limit: 50`。成功返回原 `type: "result"` 信封中的 `{usage: {...}}`。明细保留 `offset`、`total` 和 `rows`，用 `offset + rows.length` 计算下一页。为适应 Android 的 protected 帧限制，单页可能少于 50 条。
+
+| 错误 | 含义 |
+| --- | --- |
+| `device_not_authorized` | 设备会话未获授权、已撤销或被重新配对替换 |
+| `usage_permission_denied` | 设备用量访问关闭，或查询期间权限被撤销 |
+| `usage_unavailable` | 当前本机网关不可用，或响应不符合契约 |
+| `invalid_request` | 已授权的查询参数不合法 |
+| `unsupported_request` | 旧版 Mac 插件未实现此协议 |
+
+插件只向回环网关发出 `GET /v1/magpie/usage` 和 `GET /v1/magpie/usage/requests`。以 Magpie 插件宿主给出的 `MAGPIE_ADDR` 为准，缺省为 `127.0.0.1:3425`。本机保存的地址随页面服务初始化更新，切换端口或预设后应打开对应实例的「连接手机」页面。手机直连的手动 HTTPS 用量入口由 Android 独立处理。
+
+真实验收时，在隔离的 Magpie 实例加载本轮插件包，关闭再开启其后台连接以运行新版 companion。使用 Android 真机可达的测试中继与隔离设备身份，检查旧设备默认拒绝、打开后能加载概览及连续两页明细、关闭后刷新被拒绝、保留密钥重新配对后权限保持，以及完整撤销后会话和重连均被拒绝。对照同一 Magpie 网关、时间范围和稳定的测试用量记录，并检查配置非默认回环端口后仍查询对应实例。
+
 下一项真机验收先让 Mac 的配对 offer 使用 Android 真机可达的测试中继地址。扫码一次，关闭 Mac 插件页，杀掉并重开 Android App，用同一设备身份重新拿到新回执。再验证 Mac 撤销后当前连接和重连都被拒绝。手机蜂窝切换需要两端可达的中继，本轮中继只绑定 Mac 的回环地址。

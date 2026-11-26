@@ -99,6 +99,10 @@ internal class PhoneConnectionViewModel(
     private val relay = PhoneRelaySession.client()
     private val mutableState = MutableStateFlow(PhoneConnectionState())
     val state = mutableState.asStateFlow()
+    private val mutableSession = MutableStateFlow<PhoneRelaySession?>(null)
+
+    /** The connection this device is currently authorized on, for features that share it. */
+    val session = mutableSession.asStateFlow()
     private val refresh = Channel<Unit>(Channel.CONFLATED)
     private var connection: Job? = null
     private var profile: PhoneProfile? = null
@@ -273,7 +277,11 @@ internal class PhoneConnectionViewModel(
                         debugEvent("device.auth accepted")
                     }
                     operation = "host.get"
-                    readWhileConnected(session)
+                    try {
+                        readWhileConnected(session)
+                    } finally {
+                        mutableSession.value = null
+                    }
                 }
             } catch (error: PhoneServerError) {
                 currentCoroutineContext().ensureActive()
@@ -306,6 +314,7 @@ internal class PhoneConnectionViewModel(
             lastReading = reading
             debugEvent("host.get id=${reading.requestId.take(8)} receipt=${reading.receipt.take(8)}")
             mutableState.value = PhoneConnectionState(PhoneStatus.Connected, reading.displayName)
+            mutableSession.value = session
             session.awaitRead(refresh)
         }
     }

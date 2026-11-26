@@ -28,6 +28,10 @@
       <button id="issue" class="primary" type="button" hidden>生成配对码</button>
       <button id="stop" type="button" hidden>关闭后台连接</button>
     </div>
+    <label id="pair-usage-option" hidden>
+      <input id="pair-usage" type="checkbox" autocomplete="off">
+      允许本次配对的新设备查看用量
+    </label>
     <div id="pairing" hidden>
       <img id="qr" alt="手机配对二维码">
       <div class="pairing-info">
@@ -46,6 +50,7 @@
     <p id="empty">正在读取设备…</p>
     <ul id="devices"></ul>
   </section>
+
 
   <p id="notice" role="status"></p>
 </main>

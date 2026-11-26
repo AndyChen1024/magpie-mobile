@@ -4,7 +4,8 @@ import { existsSync, mkdirSync, renameSync, unlinkSync, writeFileSync } from 'no
 import { homedir, tmpdir } from 'node:os';
 import { join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { privateDirectory } from './host.mjs';
+import { privateDirectory, writePrivateJson } from './host.mjs';
+import { loopbackGateway, usageGatewayFile } from './usage.mjs';
 
 const xml = (value) => value.replace(/[<>&"']/g, (char) => (
   { '<': '&lt;', '>': '&gt;', '&': '&amp;', '"': '&quot;', "'": '&apos;' }[char]
@@ -35,6 +36,13 @@ export function macCompanion(configDirectory) {
   return {
     socketPath,
     configured: () => existsSync(plist),
+    publishUsageGateway(address) {
+      privateDirectory(stateDirectory);
+      // Retain only the address, and fail closed when Magpie supplies a non-loopback bind.
+      const gateway = loopbackGateway(address);
+      const host = gateway?.hostname === '::1' ? '[::1]' : gateway?.hostname;
+      writePrivateJson(join(stateDirectory, usageGatewayFile), gateway ? `${host}:${gateway.port}` : null);
+    },
     start() {
       if (loaded()) return;
       privateDirectory(socketDirectory);

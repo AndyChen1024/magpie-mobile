@@ -7,6 +7,7 @@ import { dirname, join } from 'node:path';
 import { exportPublicKey, exportSecretKey, generateKeyPair, importPublicKey, importSecretKey } from '@getpaseo/relay/e2ee';
 import { connectRelay } from './relay.mjs';
 import { deviceId, encodePairing, isBase64url, localRelay, proofBytes, version } from './protocol.mjs';
+import { gatewayUsageSource, projectUsage, usageGatewayFile, usageQuery } from './usage.mjs';
 
 export function writePrivateJson(path, value) {
   const temporary = `${path}.${randomUUID()}.tmp`;
@@ -68,19 +69,22 @@ function matchesTicket(candidate, current) {
     timingSafeEqual(Buffer.from(candidate), Buffer.from(current.ticket));
 }
 
-export function startHost(directory, socketPath) {
+export function startHost(directory, socketPath, options = {}) {
   privateDirectory(directory);
   const statePath = join(directory, 'devices.json');
+  const readUsage = options.usageSource ?? gatewayUsageSource(join(directory, usageGatewayFile));
   let state;
   let relay;
   let offer;
   let currentPairing;
 
-  function saveDevices(devices) {
-    const next = { ...state, devices };
+  function saveState(patch) {
+    const next = { ...state, ...patch };
     writePrivateJson(statePath, next);
     state = next;
   }
+
+  const usagePermission = (id) => state.usagePermissions?.[id];
 
   function openSession() {
     const nonce = freshToken();
@@ -91,6 +95,31 @@ export function startHost(directory, socketPath) {
 
     function send(message) {
       void channel.send(JSON.stringify({ v: version, ...message })).catch(() => channel.close());
+    }
+
+    const authorized = () => Boolean(grant && state.devices.includes(grant));
+
+    async function readUsageResult(query, id) {
+      try {
+        const usage = projectUsage(await readUsage(query), query, id);
+        return usage ? { usage } : { error: 'usage_unavailable' };
+      } catch {
+        return { error: 'usage_unavailable' };
+      }
+    }
+
+    function handleUsage(request) {
+      const reply = (result) => send({ type: 'result', id: request.id, ...result });
+      if (!authorized()) return reply({ error: 'device_not_authorized' });
+      const permission = usagePermission(grant.id);
+      if (!permission) return reply({ error: 'usage_permission_denied' });
+      const query = usageQuery(request);
+      if (!query) return reply({ error: 'invalid_request' });
+      void readUsageResult(query, request.id).then((result) => {
+        if (!authorized()) return reply({ error: 'device_not_authorized' });
+        if (usagePermission(grant.id) !== permission) return reply({ error: 'usage_permission_denied' });
+        reply(result);
+      });
     }
 
     function authorize(request) {
@@ -111,7 +140,12 @@ export function startHost(directory, socketPath) {
         if (!validLabel(label)) return { error: 'invalid_label' };
         if (!existing && state.devices.length >= 32) return { error: 'device_limit' };
         grant = { id, label, pairedAt: Date.now() };
-        saveDevices([...state.devices.filter((device) => device.id !== id), grant]);
+        const devices = [...state.devices.filter((device) => device.id !== id), grant];
+        if (!existing && currentPairing.allowUsage) {
+          saveState({ devices, usagePermissions: { ...state.usagePermissions, [id]: randomUUID() } });
+        } else {
+          saveState({ devices });
+        }
         currentPairing = undefined;
       } else if (!existing) {
         return { error: 'device_not_authorized' };
@@ -134,6 +168,10 @@ export function startHost(directory, socketPath) {
         let request;
         try { request = JSON.parse(raw); } catch { return; }
         if (request?.v !== version || typeof request.id !== 'string' || !/^[a-zA-Z0-9_-]{1,64}$/.test(request.id)) return;
+        if (request.type === 'usage.summary' || request.type === 'usage.requests') {
+          handleUsage(request);
+          return;
+        }
         let result;
         try {
           switch (request.type) {
@@ -166,13 +204,29 @@ export function startHost(directory, socketPath) {
         case 'status':
           result = {
             status: relay?.isOnline() ? 'online' : 'connecting',
-            devices: state.devices.map(({ id, label, pairedAt }) => ({ id, label, pairedAt })),
+            devices: state.devices.map(({ id, label, pairedAt }) => ({
+              id, label, pairedAt, allowUsage: Boolean(usagePermission(id)),
+            })),
             pairingExpiresAt: currentPairing?.expiresAt,
           };
           break;
+        case 'usage.set': {
+          const { id, allowUsage } = request;
+          if (!state.devices.some((device) => device.id === id)) { result = { error: 'device_not_authorized' }; break; }
+          if (typeof allowUsage !== 'boolean') { result = { error: 'invalid_request' }; break; }
+          if (allowUsage !== Boolean(usagePermission(id))) {
+            // A fresh permission identity invalidates reads that began before a disable/re-enable.
+            const usagePermissions = { ...state.usagePermissions };
+            if (allowUsage) usagePermissions[id] = randomUUID();
+            else delete usagePermissions[id];
+            saveState({ usagePermissions });
+          }
+          result = { ok: true };
+          break;
+        }
         case 'issue':
           if (!relay.isOnline()) { result = { error: 'relay_offline' }; break; }
-          currentPairing = { ticket: freshToken(), expiresAt: Date.now() + 120000 };
+          currentPairing = { ticket: freshToken(), expiresAt: Date.now() + 120000, allowUsage: request.allowUsage === true };
           result = { link: encodePairing(offer, currentPairing.ticket), expiresAt: currentPairing.expiresAt };
           break;
         case 'cancel':
@@ -181,7 +235,11 @@ export function startHost(directory, socketPath) {
           break;
         case 'revoke': {
           const remaining = state.devices.filter(({ id }) => id !== request.id);
-          if (remaining.length !== state.devices.length) saveDevices(remaining);
+          if (remaining.length !== state.devices.length) {
+            const usagePermissions = { ...state.usagePermissions };
+            delete usagePermissions[request.id];
+            saveState({ devices: remaining, usagePermissions });
+          }
           result = { ok: true };
           break;
         }
@@ -199,12 +257,18 @@ export function startHost(directory, socketPath) {
   server.listen(socketPath, () => {
     state = readState(statePath);
     const { serverId, daemonPublicKeyB64, daemonSecretKeyB64 } = state;
-    offer = { v: 2, serverId, daemonPublicKeyB64, relay: localRelay, minimumSecurityMode: 'protected' };
+    offer = { v: 2, serverId, daemonPublicKeyB64, relay: options.relay ?? localRelay, minimumSecurityMode: 'protected' };
     relay = connectRelay(offer, {
       publicKey: importPublicKey(daemonPublicKeyB64),
       secretKey: importSecretKey(daemonSecretKeyB64),
     }, openSession);
   });
+  return {
+    stop() {
+      relay?.stop();
+      server.close();
+    },
+  };
 }
 
 export async function readJson(req) {

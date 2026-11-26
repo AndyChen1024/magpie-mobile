@@ -33,7 +33,7 @@ Android 和 iOS 各自拥有导航、页面和系统生命周期。两个工程�
 
 1. **接收操作。** Android 的 `LanUsageViewModel` 将时段和标签传给控制器，使用 `SavedStateHandle` 记住两项选择。iOS 集成中的 `UsageWorkspace` 把选择交给 `SharedUsageSession`，将共享观察结果转换为 Swift 的 `UsageSnapshot`。[Android ViewModel](../magpie-android/app/src/main/java/com/andychen/magpie_android/usage/LanUsageViewModel.kt)
 2. **建立查询。** `UsageController` 在更换主机或时段时更新查询版本、取消原查询并加载当前标签。打开请求表从 `offset=0` 开始，每页 50 条。[控制器](../shared/src/commonMain/kotlin/com/andychen/magpie/shared/usage/UsageController.kt)
-3. **读取主机数据。** 控制器按 HTTPS origin 读取凭据，再把带授权头的 GET 请求交给平台。Android 使用 `UsageConnectionStore` 和 `HttpsURLConnection`。iOS 通过 Keychain 保存和恢复连接，桥接层按 origin 提供凭据并通过 `URLSession` 发出请求。[共享接口](../shared/src/commonMain/kotlin/com/andychen/magpie/shared/usage/UsageTransport.kt) · [Android 存储](../magpie-android/app/src/main/java/com/andychen/magpie_android/usage/UsageConnectionStore.kt) · [Android 传输](../magpie-android/app/src/main/java/com/andychen/magpie_android/usage/AndroidUsageTransport.kt)
+3. **读取主机数据。** Android 默认通过已配对 Mac 的加密会话读取用量，Mac 按设备检查用量授权并查询本机网关。选择手动 HTTPS 时，共享层按 origin 读取凭据，把带授权头的 GET 请求交给平台。Android 使用 `UsageConnectionStore` 和 `HttpsURLConnection`。iOS 通过 Keychain 保存和恢复连接，经 `URLSession` 发出同类请求。[Android 用量来源](usage/android.md) · [共享接口](../shared/src/commonMain/kotlin/com/andychen/magpie/shared/usage/UsageQuerySource.kt) · [Mac 授权与协议](../magpie-plugin/README.md#已配对设备的用量)
 4. **显示结果。** 共享层分别更新 `SummaryState` 和 `RequestsState`。概览返回受限密钥错误时，用户仍可打开有权访问的请求表。下一页按服务端返回的 `offset + rows.size` 计算。翻页出错时保留先前的行和重试位置。[状态模型](../shared/src/commonMain/kotlin/com/andychen/magpie/shared/usage/UsageModels.kt) · [协议解析](../shared/src/commonMain/kotlin/com/andychen/magpie/shared/usage/UsageProtocol.kt)
 
 ## 从用量扩展到远程会话
