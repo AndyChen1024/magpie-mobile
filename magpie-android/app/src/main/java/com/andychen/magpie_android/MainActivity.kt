@@ -26,7 +26,7 @@ class MainActivity : ComponentActivity() {
 
         val preferences = getPreferences(MODE_PRIVATE)
         val usage by viewModels<LanUsageViewModel>()
-        val phone = ViewModelProvider(this)[PhoneConnectionViewModel::class.java]
+        val phone = ViewModelProvider(this, PhoneConnectionViewModel.Factory)[PhoneConnectionViewModel::class.java]
         setContent {
             var theme by remember {
                 val savedTheme = preferences.getString("theme", null)

@@ -1,5 +1,6 @@
 package com.andychen.magpie_android.phone
 
+import android.content.ActivityNotFoundException
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
@@ -44,12 +45,10 @@ class PhoneScanActivity : CaptureActivity() {
 internal fun PhoneConnectionPage(model: PhoneConnectionViewModel) {
     val state by model.state.collectAsStateWithLifecycle()
     val scanner = rememberLauncherForActivityResult(ScanContract()) { result ->
-        val code = result.contents
-        if (code != null) {
-            model.scan(code)
-        } else if (result.originalIntent?.getBooleanExtra(Intents.Scan.MISSING_CAMERA_PERMISSION, false) == true) {
-            model.cameraDenied()
-        }
+        model.finishScan(
+            result.contents,
+            cameraDenied = result.originalIntent?.getBooleanExtra(Intents.Scan.MISSING_CAMERA_PERMISSION, false) == true,
+        )
     }
     val context = LocalContext.current
     val scanPrompt = stringResource(R.string.phone_scan_prompt)
@@ -87,16 +86,29 @@ internal fun PhoneConnectionPage(model: PhoneConnectionViewModel) {
                 Button(
                     modifier = Modifier.testTag("phone_scan"),
                     onClick = {
-                        scanner.launch(ScanOptions()
+                        val options = ScanOptions()
                             .setCaptureActivity(PhoneScanActivity::class.java)
                             .setDesiredBarcodeFormats(ScanOptions.QR_CODE)
                             .setPrompt(scanPrompt)
                             .setBeepEnabled(false)
                             .addExtra(DecodeHintType.TRY_HARDER.name, true)
-                            .addExtra(Intents.Scan.SHOW_MISSING_CAMERA_PERMISSION_DIALOG, false))
+                            .addExtra(Intents.Scan.SHOW_MISSING_CAMERA_PERMISSION_DIALOG, false)
+                        if (model.beginScan()) {
+                            try {
+                                scanner.launch(options)
+                            } catch (_: ActivityNotFoundException) {
+                                model.finishScan(null)
+                            } catch (_: SecurityException) {
+                                model.finishScan(null, cameraDenied = true)
+                            }
+                        }
                     }
                 ) {
-                    Text(stringResource(if (state.status == PhoneStatus.AuthorizationLost) R.string.phone_pair_again else R.string.phone_scan))
+                    val label = when (state.status) {
+                        PhoneStatus.AuthorizationLost, PhoneStatus.Disconnected -> R.string.phone_pair_again
+                        else -> R.string.phone_scan
+                    }
+                    Text(stringResource(label))
                 }
             }
             if (state.problem == PhoneProblem.CameraDenied) {
@@ -109,7 +121,7 @@ internal fun PhoneConnectionPage(model: PhoneConnectionViewModel) {
             if (state.status == PhoneStatus.Connected || state.canRetry) {
                 OutlinedButton(
                     onClick = model::readOrRetry,
-                    enabled = !state.working,
+                    enabled = !state.scanning && (state.canRetry || !state.working),
                     modifier = Modifier.testTag("phone_read")
                 ) {
                     Text(stringResource(if (state.canRetry) R.string.phone_retry else R.string.phone_read_mac))
