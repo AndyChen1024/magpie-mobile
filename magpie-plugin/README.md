@@ -4,6 +4,12 @@
 
 ## 安装和打开
 
+打开 Mac 的 Magpie「插件 → 发现」，搜索「连接手机」或 `magpie-connect-phone`。也可在「添加插件」中输入 `github:AndyChen1024/magpie-connect-phone`。安装后按下方第 3 步配对。[Mac 插件发布仓库](https://github.com/AndyChen1024/magpie-connect-phone)
+
+如果曾从 `github:AndyChen1024/magpie-mobile` 安装，请在旧插件页关闭后台连接，移除旧条目，再添加新地址并重新开启。继续使用同一个 Magpie 数据目录可沿用设备授权。
+
+以下步骤适用于本地开发和调试。
+
 1. 用 Node.js 和 npm 准备自包含的插件目录。在 `magpie-plugin/` 中运行：
 
    ```sh

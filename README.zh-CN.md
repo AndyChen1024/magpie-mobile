@@ -18,6 +18,8 @@
 
 项目处于早期开发阶段。Android 9 或更新版本可在 GitHub Releases 的预发布条目中下载 APK，安装后打开 **更多 → 用量 → 查看演示数据** 即可体验。iOS 可从源码运行。
 
+要把手机版与 Mac 配对，请在 Mac 的 Magpie 打开「插件 → 发现」，搜索「连接手机」或 `magpie-connect-phone`。也可在「添加插件」中输入 `github:AndyChen1024/magpie-connect-phone`。[Mac 配套插件](https://github.com/AndyChen1024/magpie-connect-phone)
+
 | 平台 | 当前实现 |
 | --- | --- |
 | Android | 使用 Kotlin 和 Jetpack Compose。可通过 HTTPS 或已授权的 Mac 插件查看今天、最近 7 天和最近 30 天的用量趋势、Agent 和模型排行、费用及单条请求。也可离线查看演示数据。 |

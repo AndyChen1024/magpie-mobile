@@ -18,6 +18,8 @@ Independent, open-source Android and iOS clients for [Magpie](https://github.com
 
 Magpie Mobile is in early development. On Android 9 or later, install the preview APK from GitHub Releases. You can try the offline demo before connecting a gateway. On iOS, build the app from source.
 
+To pair the mobile app with a Mac, open **Plugins → Discover** in Magpie and search for `magpie-connect-phone` or `连接手机`. You can also add `github:AndyChen1024/magpie-connect-phone` directly. [Mac companion plugin](https://github.com/AndyChen1024/magpie-connect-phone)
+
 | Platform | Available today |
 | --- | --- |
 | Android | Built with Kotlin and Jetpack Compose. View usage trends, agent and model rankings, costs, and request details for today, the last 7 days, or the last 30 days. Connect over HTTPS or use a paired Mac with the companion plugin. Demo data works offline. |
