@@ -14,9 +14,17 @@
 2. 在 Android 打开「更多 → 用量 → 已配对 Mac」。用量页默认选此来源，并通过现有加密连接读取概览和分页请求。手机端只需扫码。离线时可重连，用量未授权时可在 Mac 开启权限后重试。[Mac 授权与协议](../../magpie-plugin/README.md#已配对设备的用量)
 3. 选择「手动 HTTPS」可继续使用原有的网关配置。两个来源各自查询，选中的来源断开后会提示连接状态。iOS 这一轮继续使用手动 HTTPS 用量查询。
 
+## Android 用量观测
+
+Magpie 桌面端先显示指标和已知费用，再给出输入与输出趋势及分组。请求页用列表定位一条请求，其详情展示从客户端请求模型到上游实际响应模型的链路。Android 沿用这两级信息结构，使用原生 Compose 列表和详情弹层。[上游概览](https://github.com/yetone/magpie/blob/426a707a19ff7f481989f03c49519bf4dba1e593/internal/gui/assets/plugins/usage/page.js#L1044) · [上游请求详情](https://github.com/yetone/magpie/blob/426a707a19ff7f481989f03c49519bf4dba1e593/internal/gui/assets/plugins/usage/page.js#L2143)
+
+- 概览显示总 token、调用、错误和计价信息。`input + output` 计算总量，缓存读写单列，推理包含在输出内。部分请求未计价时显示对应条数。已知小计为零且仍有未计价请求时标记「计价不完整」。缓存命中率以读缓存量除以已测量的提示词 token，分母扣除 `cache_unknown`。[上游计量定义](https://github.com/yetone/magpie/blob/426a707a19ff7f481989f03c49519bf4dba1e593/internal/usage/usage.go#L561)
+- 趋势使用概览响应的 `bucket` 和 `series`。今天按小时，近 7 天和 30 天按日，横轴使用主机时间。可以查看各时段的输入、输出精确值。Agent 和模型各显示按 token 排序的最多五项。同名模型的不同供应商和历史路由合并计入模型排行。[上游分组排序](https://github.com/yetone/magpie/blob/426a707a19ff7f481989f03c49519bf4dba1e593/internal/usage/summary_fold.go#L281)
+- 请求列表提供模型、Agent、时间和状态，并在有记录时显示供应商、token、费用与总耗时。详情按需展示请求、发往上游、实际响应的模型，缓存与推理，以及首 token 耗时。配对 Mac 和手动 HTTPS 走同一套共享解析。旧主机响应缺少扩展字段时，仍可查看原有概览与请求。[网关字段](https://github.com/yetone/magpie/blob/426a707a19ff7f481989f03c49519bf4dba1e593/internal/usage/usage.go#L29) · [配对用量协议](../../magpie-plugin/README.md#已配对设备的用量)
+
 ## 手动 HTTPS 网关
 
-1. 从 `MagpieApp.kt` 找到用量导航，修改 `UsageScreen.kt` 的数据入口。菜单、返回、弹层和详情由 Compose 管理。让页面接收不可变状态与回调，由页面外的状态持有者收集共享结果。保存时间范围等 UI 选择，页面重建时依当前连接恢复查询。[Compose 状态提升](https://developer.android.com/develop/ui/compose/state-hoisting)
+1. `MagpieApp.kt` 提供用量入口，`LanUsageRoute.kt` 收集共享状态，`LanUsagePage.kt` 呈现真实用量。菜单、返回、弹层和详情由 Compose 管理。页面重建时依当前连接恢复时间范围和查询。`UsageScreen.kt` 保留独立的演示数据路径。[Compose 状态提升](https://developer.android.com/develop/ui/compose/state-hoisting)
 2. 连接表单采用安全输入，凭据以 Android Keystore 保护的加密存储持久化，排除凭据备份。断开并清除连接时删除对应条目。证书校验使用目标主机及应用信任链。用真实设备检查目标证书链能否被应用信任。
 3. Android 应用使用 `minSdk=28`、`targetSdk=36` 和 `compileSdk=37`。主清单声明 `INTERNET`，手动局域网直连使用系统兼容授权。将来提升到 `targetSdk=37` 或更高时，需在清单声明 `ACCESS_LOCAL_NETWORK`，并在 Android 17 及以上回归运行时权限的拒绝、撤销和恢复。[Android 本地网络权限](https://developer.android.com/privacy-and-security/local-network-permission)
 

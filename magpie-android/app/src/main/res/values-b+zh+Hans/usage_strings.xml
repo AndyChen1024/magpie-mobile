@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="usage_total_tokens">Token 总量</string>
+    <string name="usage_error_count_value">错误 %1$s 次</string>
+    <string name="usage_cost_unavailable">计价不完整</string>
+    <string name="usage_token_breakdown">Token 明细</string>
+    <string name="usage_reasoning_in_output">推理（计入输出）</string>
+    <string name="usage_cache_write">缓存写入</string>
+    <string name="usage_cache_hit_rate">缓存命中率</string>
+    <string name="usage_cache_not_reported">供应商未报告缓存用量。</string>
+    <string name="usage_trend_hour">每小时 Token 趋势</string>
+    <string name="usage_trend_day">每日 Token 趋势</string>
+    <string name="usage_host_time">主机时间</string>
+    <string name="usage_trend_values">查看各时段用量</string>
+    <string name="usage_top_agents">Token 用量最高的 Agent</string>
+    <string name="usage_top_models">Token 用量最高的模型</string>
+    <string name="usage_group_counts">Token %1$s · 调用 %2$s 次</string>
+    <string name="usage_token_count">Token %1$s</string>
+    <string name="usage_status_canceled">已取消</string>
+    <string name="usage_http_status">HTTP %1$d</string>
+    <string name="usage_http_missing">未记录 HTTP 状态</string>
+    <string name="usage_http_code">HTTP 状态</string>
+    <string name="usage_model_missing">未记录模型</string>
+    <string name="usage_request_routing">请求与路由</string>
+    <string name="usage_provider">供应商</string>
+    <string name="usage_requested_model">请求模型</string>
+    <string name="usage_sent_model">发往上游的模型</string>
+    <string name="usage_served_model">实际响应模型</string>
+    <string name="usage_request_metering">Token 与费用</string>
+    <string name="usage_request_timing">耗时</string>
+    <string name="usage_total_duration">总耗时</string>
+    <string name="usage_first_token">首 Token 耗时</string>
+    <string name="usage_duration_value">%1$s 毫秒</string>
+</resources>

@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="usage_total_tokens">Total tokens</string>
+    <string name="usage_error_count_value">Errors %1$s</string>
+    <string name="usage_cost_unavailable">Incomplete pricing</string>
+    <string name="usage_token_breakdown">Token breakdown</string>
+    <string name="usage_reasoning_in_output">Reasoning (included in output)</string>
+    <string name="usage_cache_write">Cache writes</string>
+    <string name="usage_cache_hit_rate">Cache hit rate</string>
+    <string name="usage_cache_not_reported">The provider did not report cache usage.</string>
+    <string name="usage_trend_hour">Hourly token trend</string>
+    <string name="usage_trend_day">Daily token trend</string>
+    <string name="usage_host_time">Host time</string>
+    <string name="usage_trend_values">View usage by time</string>
+    <string name="usage_top_agents">Top agents by tokens</string>
+    <string name="usage_top_models">Top models by tokens</string>
+    <string name="usage_group_counts">Tokens %1$s · Calls %2$s</string>
+    <string name="usage_token_count">Tokens %1$s</string>
+    <string name="usage_status_canceled">Canceled</string>
+    <string name="usage_http_status">HTTP %1$d</string>
+    <string name="usage_http_missing">No HTTP status recorded</string>
+    <string name="usage_http_code">HTTP status</string>
+    <string name="usage_model_missing">Model not recorded</string>
+    <string name="usage_request_routing">Request and routing</string>
+    <string name="usage_provider">Provider</string>
+    <string name="usage_requested_model">Requested model</string>
+    <string name="usage_sent_model">Model sent upstream</string>
+    <string name="usage_served_model">Actual model</string>
+    <string name="usage_request_metering">Tokens and cost</string>
+    <string name="usage_request_timing">Timing</string>
+    <string name="usage_total_duration">Total duration</string>
+    <string name="usage_first_token">Time to first token</string>
+    <string name="usage_duration_value">%1$s ms</string>
+</resources>

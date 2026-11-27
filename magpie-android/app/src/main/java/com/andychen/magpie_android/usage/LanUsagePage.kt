@@ -1,6 +1,5 @@
 package com.andychen.magpie_android.usage
 
-import androidx.annotation.StringRes
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -25,7 +24,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.pluralStringResource
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.semantics
@@ -34,21 +33,13 @@ import com.andychen.magpie.shared.usage.UsageFailure
 import com.andychen.magpie.shared.usage.UsagePeriod
 import com.andychen.magpie.shared.usage.UsagePhase
 import com.andychen.magpie.shared.usage.UsageRow
-import com.andychen.magpie.shared.usage.UsageSummary
 import com.andychen.magpie.shared.usage.UsageTab
 import com.andychen.magpie_android.R
 import com.andychen.magpie_android.phone.PhoneStatus
 import com.andychen.magpie_android.ui.EmptyPanel
-import com.andychen.magpie_android.ui.InfoDialog
-import com.andychen.magpie_android.ui.InfoRow
-import com.andychen.magpie_android.ui.MagpieDivider
 import com.andychen.magpie_android.ui.MagpiePanel
 import com.andychen.magpie_android.ui.Segments
-import com.andychen.magpie_android.ui.UsageFormats
 import com.andychen.magpie_android.ui.rememberUsageFormats
-import java.time.OffsetDateTime
-import java.time.ZoneId
-import java.time.format.DateTimeParseException
 
 @Composable
 internal fun LanUsagePage(
@@ -75,7 +66,7 @@ internal fun LanUsagePage(
     key(state.mode, state.bindingRevision, origin, usage.period, usage.tab) {
         var detail by remember(usage.requests.failure) { mutableStateOf<UsageRow?>(null) }
         LazyColumn(
-            modifier = Modifier.fillMaxSize(),
+            modifier = Modifier.fillMaxSize().testTag("lan_usage_list"),
             contentPadding = PaddingValues(horizontal = 16.dp, vertical = 12.dp),
             verticalArrangement = Arrangement.spacedBy(10.dp)
         ) {
@@ -135,13 +126,13 @@ internal fun LanUsagePage(
             }
             item { RangeControls(usage.period, onPeriod, onRefresh) }
             when (usage.tab) {
-                UsageTab.OVERVIEW -> item {
+                UsageTab.OVERVIEW -> {
                     val summary = usage.summary
                     when (summary.phase) {
-                        UsagePhase.IDLE, UsagePhase.LOADING -> UsageLoading()
-                        UsagePhase.EMPTY -> EmptyPanel(stringResource(R.string.usage_empty))
-                        UsagePhase.ERROR -> UsageError(summary.failure, paired, onRetry, onPermissionSettings)
-                        UsagePhase.READY -> summary.value?.let { SummaryPanel(it, formats) }
+                        UsagePhase.IDLE, UsagePhase.LOADING -> item { UsageLoading() }
+                        UsagePhase.EMPTY -> item { EmptyPanel(stringResource(R.string.usage_empty)) }
+                        UsagePhase.ERROR -> item { UsageError(summary.failure, paired, onRetry, onPermissionSettings) }
+                        UsagePhase.READY -> summary.value?.let { usageOverview(it, formats) }
                     }
                 }
                 UsageTab.REQUESTS -> {
@@ -155,15 +146,7 @@ internal fun LanUsagePage(
                                 item { Text(stringResource(R.string.usage_rows_shown, requests.rows.size, total)) }
                             }
                             items(requests.rows) { row ->
-                                MagpiePanel {
-                                    InfoRow(
-                                        title = row.model ?: stringResource(R.string.usage_unavailable_value),
-                                        subtitle = listOf(row.agent ?: stringResource(R.string.usage_unavailable_value),
-                                            formatTime(row.timestamp, formats)).joinToString(" · "),
-                                        trailing = statusLabel(row),
-                                        onClick = { detail = row }
-                                    )
-                                }
+                                UsageRequestItem(row, formats, onClick = { detail = row })
                             }
                             item {
                                 when {
@@ -180,13 +163,7 @@ internal fun LanUsagePage(
             }
         }
         detail?.takeIf { it in usage.requests.rows }?.let { row ->
-            InfoDialog(stringResource(R.string.request_detail), onDismiss = { detail = null }) {
-                DetailLine(R.string.request_time, formatTime(row.timestamp, formats))
-                DetailLine(R.string.agents, row.agent ?: stringResource(R.string.usage_unavailable_value))
-                DetailLine(R.string.model, row.model ?: stringResource(R.string.usage_unavailable_value))
-                DetailLine(R.string.request_status, statusLabel(row))
-                DetailLine(R.string.request_cost, row.costUsd?.let(formats::usd) ?: stringResource(R.string.usage_price_unknown))
-            }
+            UsageRequestDetail(row, formats, onDismiss = { detail = null })
         }
     }
 }
@@ -243,37 +220,6 @@ private fun RangeControls(period: UsagePeriod, onPeriod: (UsagePeriod) -> Unit, 
 }
 
 @Composable
-private fun SummaryPanel(value: UsageSummary, formats: UsageFormats) {
-    MagpiePanel {
-        Column(Modifier.padding(14.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
-            DetailLine(R.string.usage_call_count, formats.count(value.calls))
-            DetailLine(R.string.usage_error_count, formats.count(value.errors))
-            MagpieDivider()
-            DetailLine(R.string.token, formats.count(value.tokens))
-            DetailLine(R.string.input_tokens, formats.count(value.input))
-            DetailLine(R.string.output_tokens, formats.count(value.output))
-            MagpieDivider()
-            DetailLine(R.string.usage_known_cost, formats.usd(value.costUsd))
-            if (value.unpriced > 0) {
-                val quantity = value.unpriced.coerceAtMost(Int.MAX_VALUE.toLong()).toInt()
-                Text(
-                    pluralStringResource(R.plurals.usage_unpriced_count, quantity, value.unpriced),
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
-            }
-        }
-    }
-}
-
-@Composable
-private fun DetailLine(@StringRes label: Int, value: String) {
-    Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-        Text(stringResource(label), Modifier.weight(1f), color = MaterialTheme.colorScheme.onSurfaceVariant)
-        Text(value, Modifier.weight(1f))
-    }
-}
-
-@Composable
 private fun UsageLoading() {
     Text(stringResource(R.string.usage_loading))
     LinearProgressIndicator(Modifier.fillMaxWidth())
@@ -295,10 +241,6 @@ private fun UsageError(failure: UsageFailure?, paired: Boolean, onRetry: () -> U
         }
     }
 }
-
-@Composable
-private fun statusLabel(row: UsageRow): String =
-    row.httpStatus?.let { "HTTP $it" } ?: stringResource(R.string.usage_unavailable_value)
 
 private val UsagePeriod.label: Int get() = when (this) {
     UsagePeriod.TODAY -> R.string.range_today
@@ -322,10 +264,4 @@ private val UsageFailure?.label: Int get() = when (this) {
     UsageFailure.INVALID_REQUEST -> R.string.usage_paired_invalid_request
     UsageFailure.UNSUPPORTED_REQUEST -> R.string.usage_paired_unsupported
     UsageFailure.SERVER, null -> R.string.usage_server_error
-}
-
-private fun formatTime(timestamp: String, formats: UsageFormats): String = try {
-    formats.dateTime(OffsetDateTime.parse(timestamp).atZoneSameInstant(ZoneId.systemDefault()))
-} catch (_: DateTimeParseException) {
-    timestamp
 }
