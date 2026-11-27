@@ -1,16 +1,20 @@
 const el = (id) => document.getElementById(id);
 const descriptions = {
-  loading: ['正在检查', '正在读取本机服务状态。'],
-  disabled: ['未开启', '开启后，关闭 Magpie 页面或退出 Magpie 时仍可连接。'],
-  unavailable: ['后台服务未就绪', '正在等待 macOS 的后台服务。也可以关闭后重新开启。'],
-  connecting: ['未连接', 'Mac 正在等待本地中继响应，并将自动重试。'],
-  online: ['已连接', '本地中继已响应。可以配对新设备。'],
+  loading: ['正在检查', '正在读取本机连接状态。'],
+  unknown: ['状态未知', '暂时无法读取连接状态，请刷新重试。'],
+  disabled: ['未开启', '开启后台连接后，等待中继就绪即可生成二维码。'],
+  unavailable: ['后台服务未就绪', '请稍候刷新，或关闭后台连接后重新开启。'],
+  connecting: ['正在连接', '请检查本地中继是否在运行。Mac 会自动重连。'],
+  online: ['已连通', '可以生成二维码，配对新设备。'],
 };
 let busy = false;
 let expiry;
 let previousDevices;
 let pairingUntil = 0;
+let pendingStatus;
 let deviceToRevoke;
+
+const issueLabel = '生成配对二维码';
 
 async function call(action, id, allowUsage) {
   const response = await fetch('control', {
@@ -28,26 +32,35 @@ async function call(action, id, allowUsage) {
 
 function showStatus(status) {
   const [label, detail] = descriptions[status];
-  el('status').textContent = label;
+  el('status').textContent = `Mac 中继：${label}`;
   el('status').dataset.status = status;
   el('detail').textContent = detail;
   el('start').hidden = status !== 'disabled';
-  el('stop').hidden = status === 'disabled' || status === 'loading';
-  el('issue').hidden = status !== 'online';
+  el('retry').hidden = !['connecting', 'unavailable', 'unknown'].includes(status);
+  el('stop').hidden = !['online', 'connecting', 'unavailable'].includes(status);
+  el('issue').disabled = status !== 'online';
   el('pair-usage-option').hidden = status !== 'online';
 }
 
 function renderDevices(devices, status) {
-  const key = JSON.stringify([devices, status === 'disabled', status === 'unavailable']);
+  const serviceAvailable = status === 'online' || status === 'connecting';
+  const key = JSON.stringify([devices, serviceAvailable]);
   if (key === previousDevices) return;
   previousDevices = key;
   el('empty').hidden = devices.length > 0;
-  el('empty').textContent = status === 'disabled' || status === 'unavailable'
-    ? '后台服务启动后可查看设备。' : '暂无已授权设备。';
+  el('empty').textContent = serviceAvailable ? '暂无已授权设备。' : '暂时无法读取授权列表。';
   el('devices').replaceChildren(...devices.map((device) => {
     const row = document.createElement('li');
+    const name = document.createElement('div');
+    name.className = 'device-name';
     const label = document.createElement('span');
     label.textContent = device.label;
+    const connection = document.createElement('span');
+    connection.className = 'device-status';
+    connection.dataset.connected = String(device.connected === true);
+    connection.textContent = device.connected === true ? '当前已连接'
+      : device.connected === false ? '当前未连接' : '连接状态未知';
+    name.append(label, connection);
     const button = document.createElement('button');
     button.type = 'button';
     button.textContent = '撤销';
@@ -71,7 +84,7 @@ function renderDevices(devices, status) {
       allowed ? '已关闭该设备的用量访问。' : '已允许该设备查看用量。',
     ));
     actions.append(usage, button);
-    row.append(label, actions);
+    row.append(name, actions);
     return row;
   }));
 }
@@ -82,26 +95,36 @@ function clearPairing() {
   el('pairing').hidden = true;
   el('qr').removeAttribute('src');
   el('link').value = '';
+  el('issue').textContent = issueLabel;
 }
 
 async function refresh() {
-  if (busy) return;
+  if (busy || pendingStatus) return;
+  const request = {};
+  pendingStatus = request;
   try {
     const { status, devices, pairingExpiresAt } = await call('status');
-    if (busy) return;
-    showStatus(status);
-    renderDevices(devices, status);
-    if (pairingUntil && pairingExpiresAt !== pairingUntil) clearPairing();
+    if (pendingStatus !== request) return;
+    const relayStatus = Object.hasOwn(descriptions, status) ? status : 'unknown';
+    showStatus(relayStatus);
+    renderDevices(devices ?? [], relayStatus);
+    if (pairingUntil && pairingExpiresAt !== pairingUntil && (status === 'online' || status === 'connecting')) {
+      clearPairing();
+    }
   } catch {
-    el('notice').textContent = '无法读取本机连接状态，请重新打开插件页面。';
-    showStatus('loading');
-    clearPairing();
+    if (pendingStatus !== request) return;
+    showStatus('unknown');
+    renderDevices([], 'unknown');
+  } finally {
+    if (pendingStatus === request) pendingStatus = undefined;
   }
 }
 
 async function perform(action, success) {
   if (busy) return;
   busy = true;
+  // Invalidate polls started before this action, even if they finish after it.
+  pendingStatus = undefined;
   el('notice').textContent = '';
   try {
     await action();
@@ -114,6 +137,7 @@ async function perform(action, success) {
   }
 }
 
+el('retry').addEventListener('click', refresh);
 el('start').addEventListener('click', () => perform(() => call('start'), '正在启动后台连接。'));
 el('stop').addEventListener('click', () => perform(async () => {
   await call('stop');
@@ -128,12 +152,16 @@ el('issue').addEventListener('click', () => perform(async () => {
   el('link').value = link;
   el('qr').src = qr;
   el('pairing').hidden = false;
-  expiry = setTimeout(clearPairing, Math.max(0, expiresAt - Date.now()));
+  el('issue').textContent = '重新生成配对二维码';
+  expiry = setTimeout(() => {
+    clearPairing();
+    el('notice').textContent = '配对二维码已过期。';
+  }, Math.max(0, expiresAt - Date.now()));
 }, ''));
 el('cancel').addEventListener('click', () => perform(async () => {
   await call('cancel');
   clearPairing();
-}, '配对码已取消。'));
+}, '配对二维码已取消。'));
 el('select-link').addEventListener('click', () => {
   el('link').focus();
   el('link').select();

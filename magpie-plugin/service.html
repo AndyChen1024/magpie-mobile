@@ -14,18 +14,18 @@
       <img src="{{ICON}}" alt="" width="36" height="36">
       <h1>连接手机</h1>
     </div>
-    <p>授权手机通过中继读取这台 Mac 的名称。</p>
   </header>
 
-  <section aria-labelledby="connection-title">
-    <div class="row">
-      <h2 id="connection-title">中继连接</h2>
-      <span id="status" data-status="loading" role="status">正在检查</span>
-    </div>
-    <p id="detail"></p>
+  <section class="pairing-section" aria-labelledby="connection-title">
+    <h2 id="connection-title">扫码配对</h2>
+    <p>在手机 Magpie 打开「更多 → 连接手机」，扫描这里生成的二维码。</p>
+    <p>Android 真机通过 USB 连接本地中继时，在 Mac 运行 <code>adb reverse tcp:18400 tcp:18400</code>。重新插拔 USB 后，若转发已失效，请再运行一次。</p>
+    <span id="status" data-status="loading" role="status">Mac 中继：正在检查</span>
+    <p id="detail">正在读取本机连接状态。</p>
     <div class="actions">
+      <button id="issue" class="primary" type="button" aria-describedby="detail" disabled>生成配对二维码</button>
       <button id="start" type="button" hidden>开启后台连接</button>
-      <button id="issue" class="primary" type="button" hidden>生成配对码</button>
+      <button id="retry" type="button" hidden>刷新中继状态</button>
       <button id="stop" type="button" hidden>关闭后台连接</button>
     </div>
     <label id="pair-usage-option" hidden>
@@ -35,7 +35,7 @@
     <div id="pairing" hidden>
       <img id="qr" alt="手机配对二维码">
       <div class="pairing-info">
-        <p>请用手机扫描二维码。配对码两分钟内有效，仅可使用一次。</p>
+        <p>二维码两分钟内有效，仅可使用一次。重新生成会使旧码失效。</p>
         <input id="link" aria-label="配对链接" readonly spellcheck="false">
         <div class="actions">
           <button id="select-link" type="button">选中链接</button>
@@ -47,10 +47,10 @@
 
   <section aria-labelledby="devices-title">
     <h2 id="devices-title">已授权设备</h2>
+    <p>手机断开后仍保留授权。重装后可扫码重新配对，并在这里撤销旧授权。</p>
     <p id="empty">正在读取设备…</p>
     <ul id="devices"></ul>
   </section>
-
 
   <p id="notice" role="status"></p>
 </main>

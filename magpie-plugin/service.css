@@ -17,7 +17,9 @@ h1 { font-size: 29px; margin: 0; }
 h2 { font-size: 17px; margin: 0; }
 p { line-height: 1.5; margin: 8px 0; color: var(--muted); }
 section { border: 1px solid var(--line); border-radius: 14px; padding: 17px 19px; margin-bottom: 14px; }
-.row, li { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.pairing-section h2 { font-size: 20px; }
+.pairing-section #status { margin-top: 14px; }
+li { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
 #status { display: flex; align-items: center; gap: 7px; color: var(--muted); font-size: 13px; }
 #status::before { content: ""; width: 8px; height: 8px; border-radius: 50%; background: currentColor; }
 #status[data-status=online] { color: light-dark(#237144, #83d9a5); }
@@ -33,7 +35,9 @@ button:disabled { cursor: default; opacity: .55; }
 #link { width: 100%; font: 12px ui-monospace, monospace; border: 1px solid var(--line); border-radius: 7px; padding: 7px 9px; color: CanvasText; background: Canvas; margin-bottom: 8px; }
 ul { list-style: none; padding: 0; margin: 0; }
 li { border-top: 1px solid var(--line); margin-top: 9px; padding-top: 9px; }
-li span { overflow-wrap: anywhere; }
+.device-name { display: grid; gap: 3px; min-width: 0; overflow-wrap: anywhere; }
+.device-status { color: var(--muted); font-size: 13px; }
+.device-status[data-connected=true] { color: light-dark(#237144, #83d9a5); }
 li .actions { justify-content: flex-end; flex-shrink: 0; max-width: 70%; }
 li button { flex-shrink: 0; }
 li button:not(.device-usage) { color: light-dark(#a02a32, #ffa6aa); }

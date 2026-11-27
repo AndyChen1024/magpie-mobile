@@ -1,10 +1,12 @@
 import assert from 'node:assert/strict';
 import { generateKeyPairSync, randomUUID } from 'node:crypto';
 import { once } from 'node:events';
-import { mkdtempSync, rmSync, writeFileSync } from 'node:fs';
+import { mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { createServer, request } from 'node:http';
+import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { test } from 'node:test';
+import { runInNewContext } from 'node:vm';
 import { startHost } from '../host.mjs';
 import { macCompanion } from '../launch-agent.mjs';
 import { parsePairing } from '../protocol.mjs';
@@ -16,7 +18,7 @@ const summary = { calls: 2, errors: 1, input: 90, output: 20, unpriced: 1, cost:
 const row = { t: '2026-11-25T10:01:05.123456789Z', model: 'test-model', agentName: 'Test agent', agent: 'test', status: 200, priced: true, cost: 0.05 };
 
 async function startStack(t, usageSource) {
-  const root = mkdtempSync('/tmp/magpie-usage-');
+  const root = mkdtempSync(join(tmpdir(), 'mp-'));
   const directory = join(root, 'connect-phone');
   const socketPath = join(root, 'control.sock');
   const relay = await startFakeRelay();
@@ -50,7 +52,7 @@ async function startStack(t, usageSource) {
   };
   const identityFor = (offer) => ({ offer, key: generateKeyPairSync('ed25519').privateKey.export({ format: 'jwk' }) });
   return {
-    root, directory, call, connect, identityFor,
+    root, directory, call, connect, identityFor, waitForHostPeerClose: relay.waitForHostPeerClose,
     async restart() {
       host.stop();
       await new Promise((resolve) => setImmediate(resolve));
@@ -68,8 +70,162 @@ async function startStack(t, usageSource) {
   };
 }
 
+test('pairing page keeps the QR action visible and ignores stale status after reissue', async () => {
+  const html = readFileSync(new URL('../service.html', import.meta.url), 'utf8');
+  const script = readFileSync(new URL('../service.js', import.meta.url), 'utf8');
+  const makeElement = (attributes = '') => ({
+    disabled: /\bdisabled\b/.test(attributes),
+    hidden: /\bhidden\b/.test(attributes),
+    dataset: {},
+    addEventListener(_event, handler) { this.click = handler; },
+    replaceChildren(...children) { this.children = children; },
+    append(...children) { this.children = children; },
+    removeAttribute(name) { delete this[name]; },
+    setAttribute() {},
+  });
+  const elements = new Map([...html.matchAll(/\bid="([^"]+)"([^>]*)>/g)]
+    .map(([, id, attributes]) => [id, makeElement(attributes)]));
+  const el = (id) => elements.get(id);
+  const clock = 1000;
+  const timers = new Set();
+  let poll;
+  let status = 'disabled';
+  let pairing;
+  let delayedStatus;
+  let holdNextStatus = false;
+  let issues = 0;
+  const refreshUI = () => new Promise((resolve) => setImmediate(resolve));
+  const response = (result) => ({ ok: true, json: async () => result });
+
+  assert.equal(el('issue').hidden, false);
+  assert.equal(el('issue').disabled, true);
+  runInNewContext(script, {
+    document: { getElementById: el, body: { dataset: {} }, createElement: () => makeElement() },
+    Date: { now: () => clock },
+    setInterval: (callback) => { poll = callback; },
+    setTimeout: (callback, delay) => {
+      timers.add(callback);
+      assert.equal(delay, 120000 + issues);
+      return callback;
+    },
+    clearTimeout: (callback) => timers.delete(callback),
+    fetch: async (_url, { body }) => {
+      switch (JSON.parse(body).action) {
+        case 'status': {
+          const result = response({ status, devices: status === 'online' ? [{ label: 'Test phone' }] : [], pairingExpiresAt: pairing?.expiresAt });
+          if (!holdNextStatus) return result;
+          holdNextStatus = false;
+          return new Promise((resolve) => { delayedStatus = () => resolve(result); });
+        }
+        case 'issue':
+          issues++;
+          pairing = { link: `test-link-${issues}`, qr: 'test-image', expiresAt: clock + 120000 + issues };
+          return response(pairing);
+        case 'cancel':
+          pairing = undefined;
+          return response({ ok: true });
+        default:
+          assert.fail('Unexpected control action');
+      }
+    },
+  });
+  await refreshUI();
+  assert.equal(el('start').hidden, false);
+  for (status of ['unavailable', 'connecting']) {
+    await poll();
+    assert.equal(el('issue').hidden, false);
+    assert.equal(el('issue').disabled, true);
+    assert.equal(el('retry').hidden, false);
+  }
+  status = 'online';
+  await el('retry').click();
+  assert.equal(el('issue').disabled, false);
+  assert.equal(el('devices').children[0].children[0].children[1].textContent, '连接状态未知');
+
+  await el('issue').click();
+  await refreshUI();
+  assert.equal(el('link').value, 'test-link-1');
+  assert.equal(el('issue').textContent, '重新生成配对二维码');
+  holdNextStatus = true;
+  const stalePoll = poll();
+  await el('issue').click();
+  await refreshUI();
+  delayedStatus();
+  await stalePoll;
+  assert.equal(el('pairing').hidden, false);
+  assert.equal(el('link').value, 'test-link-2');
+  assert.equal(timers.size, 1);
+
+  await el('cancel').click();
+  await refreshUI();
+  assert.equal(el('pairing').hidden, true);
+  assert.equal(el('link').value, '');
+  assert.equal(el('qr').src, undefined);
+  assert.equal(timers.size, 0);
+
+  await el('issue').click();
+  await refreshUI();
+  const [expire] = timers;
+  expire();
+  assert.equal(el('pairing').hidden, true);
+  assert.equal(el('issue').textContent, '生成配对二维码');
+  assert.equal(el('notice').textContent, '配对二维码已过期。');
+});
+
 const summaryResult = (phone) => phone.request('usage.summary', { period: 'today' });
 const pageResult = (phone, offset = 0) => phone.request('usage.requests', { period: '7d', offset, limit: 50 });
+
+test('local device status tracks authenticated protected sessions for the current grant', async (t) => {
+  const stack = await startStack(t);
+  const devices = async () => (await stack.call('status')).devices.map(({ id, label, connected }) => ({ id, label, connected }));
+  const original = await stack.pair();
+  const row = (id, connected) => ({ id, label: 'Test phone', connected });
+  const originalRow = (connected) => row(original.deviceId, connected);
+  assert.deepEqual(await devices(), [originalRow(true)]);
+
+  await stack.restart();
+  assert.deepEqual(await devices(), [originalRow(false)]);
+  const badProof = await stack.connect(original.identity);
+  assert.equal((await badProof.request('device.auth', {
+    publicKey: original.identity.key.x, signature: Buffer.alloc(64).toString('base64url'),
+  })).error, 'invalid_proof');
+  assert.deepEqual(await devices(), [originalRow(false)]);
+
+  const first = await stack.connect(original.identity);
+  const second = await stack.connect(original.identity);
+  assert.deepEqual(await devices(), [originalRow(false)]);
+  assert.equal((await first.authenticate()).deviceId, original.deviceId);
+  assert.equal((await second.authenticate()).deviceId, original.deviceId);
+  assert.deepEqual(await devices(), [originalRow(true)]);
+  const firstClosed = stack.waitForHostPeerClose();
+  first.close();
+  await firstClosed;
+  assert.deepEqual(await devices(), [originalRow(true)]);
+  second.close();
+  await until(async () => (await devices())[0]?.connected === false);
+  assert.deepEqual(await devices(), [originalRow(false)]);
+
+  const replacement = await stack.pair();
+  assert.notEqual(replacement.deviceId, original.deviceId);
+  assert.deepEqual(await devices(), [originalRow(false), row(replacement.deviceId, true)]);
+  const repaired = await stack.pair({ identity: replacement.identity });
+  assert.equal(repaired.deviceId, replacement.deviceId);
+  repaired.phone.close();
+  await until(async () => (await devices())[1]?.connected === false);
+  assert.equal((await replacement.phone.request('host.get')).error, 'device_not_authorized');
+
+  const current = await stack.connect(replacement.identity);
+  assert.equal((await current.authenticate()).deviceId, replacement.deviceId);
+  await stack.call('revoke', { id: original.deviceId });
+  assert.deepEqual(await devices(), [row(replacement.deviceId, true)]);
+  await stack.call('revoke', { id: replacement.deviceId });
+  assert.deepEqual(await devices(), []);
+  assert.equal((await current.request('host.get')).error, 'device_not_authorized');
+  const pairedAgain = await stack.pair({ identity: replacement.identity });
+  pairedAgain.phone.close();
+  await until(async () => (await devices())[0]?.connected === false);
+  assert.deepEqual(await devices(), [row(replacement.deviceId, false)]);
+});
 
 test('host authorization, per-device permissions, re-pairing, persistence and validation', async (t) => {
   const queries = [];
@@ -285,11 +441,15 @@ async function startFakeRelay() {
     socket.on('message', (data, isBinary) => {
       if (link.client.readyState === 1) link.client.send(data, { binary: isBinary });
     });
-    socket.on('close', () => link.client.close());
+    socket.on('close', () => {
+      link.client.close();
+      wss.emit('hostPeerClose');
+    });
   });
 
   return {
     endpoint: `127.0.0.1:${wss.address().port}`,
+    waitForHostPeerClose: () => once(wss, 'hostPeerClose', { signal: AbortSignal.timeout(5000) }),
     stop() {
       wss.close();
       server.close();

@@ -77,6 +77,8 @@ export function startHost(directory, socketPath, options = {}) {
   let relay;
   let offer;
   let currentPairing;
+  // A replacement grant for the same key starts with its own live sessions.
+  const connectedGrants = new WeakMap();
 
   function saveState(patch) {
     const next = { ...state, ...patch };
@@ -153,6 +155,7 @@ export function startHost(directory, socketPath, options = {}) {
         grant = existing;
       }
       clearTimeout(authDeadline);
+      connectedGrants.set(grant, (connectedGrants.get(grant) ?? 0) + 1);
       return { deviceId: id };
     }
 
@@ -160,7 +163,12 @@ export function startHost(directory, socketPath, options = {}) {
       attach(peer) {
         channel = peer;
         authDeadline = setTimeout(() => peer.close(1008, 'Authorization timed out'), 15000);
-        peer.onClose(() => clearTimeout(authDeadline));
+        peer.onClose(() => {
+          clearTimeout(authDeadline);
+          const sessions = connectedGrants.get(grant);
+          if (sessions === 1) connectedGrants.delete(grant);
+          if (sessions > 1) connectedGrants.set(grant, sessions - 1);
+        });
         send({ type: 'challenge', serverId: offer.serverId, nonce });
       },
       receive(raw) {
@@ -201,15 +209,19 @@ export function startHost(directory, socketPath, options = {}) {
       const request = await readJson(req);
       let result;
       switch (request.action) {
-        case 'status':
+        case 'status': {
+          const relayOnline = relay?.isOnline() ?? false;
           result = {
-            status: relay?.isOnline() ? 'online' : 'connecting',
-            devices: state.devices.map(({ id, label, pairedAt }) => ({
-              id, label, pairedAt, allowUsage: Boolean(usagePermission(id)),
+            status: relayOnline ? 'online' : 'connecting',
+            devices: state.devices.map((device) => ({
+              id: device.id, label: device.label, pairedAt: device.pairedAt,
+              allowUsage: Boolean(usagePermission(device.id)),
+              connected: relayOnline && connectedGrants.has(device),
             })),
             pairingExpiresAt: currentPairing?.expiresAt,
           };
           break;
+        }
         case 'usage.set': {
           const { id, allowUsage } = request;
           if (!state.devices.some((device) => device.id === id)) { result = { error: 'device_not_authorized' }; break; }
