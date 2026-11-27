@@ -10,7 +10,7 @@
 
 面向 [Magpie](https://github.com/yetone/magpie) 用户的独立 Android 和 iOS 开源客户端。
 
-**[下载 Android 0.1.0-alpha.3 内测 APK](https://github.com/AndyChen1024/magpie-mobile/releases)** · **[从源码运行](#本地开发)** · **[工程文档](#工程文档)** · **[问题反馈](https://github.com/AndyChen1024/magpie-mobile/issues)**
+**[下载 Android 0.1.0-alpha.4 内测 APK](https://github.com/AndyChen1024/magpie-mobile/releases)** · **[从源码运行](#本地开发)** · **[工程文档](#工程文档)** · **[问题反馈](https://github.com/AndyChen1024/magpie-mobile/issues)**
 
 </div>
 
@@ -20,7 +20,7 @@
 
 | 平台 | 当前实现 |
 | --- | --- |
-| Android | 使用 Kotlin 和 Jetpack Compose。已接入局域网只读用量，可按今天、最近 7 天和最近 30 天查看调用次数、token、已知费用及请求明细。也可离线查看演示数据。 |
+| Android | 使用 Kotlin 和 Jetpack Compose。可通过 HTTPS 或已授权的 Mac 插件查看今天、最近 7 天和最近 30 天的用量趋势、Agent 和模型排行、费用及单条请求。也可离线查看演示数据。 |
 | iOS | 使用 SwiftUI。在「更多 → 用量」可查看局域网网关的用量概览和请求明细，也可离线查看演示数据。 |
 
 ## 本地开发

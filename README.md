@@ -10,7 +10,7 @@
 
 Independent, open-source Android and iOS clients for [Magpie](https://github.com/yetone/magpie).
 
-**[Download the Android 0.1.0-alpha.3 APK](https://github.com/AndyChen1024/magpie-mobile/releases)** · **[Build from source](#build-from-source)** · **[Project documentation](#project-documentation)** · **[Report an issue](https://github.com/AndyChen1024/magpie-mobile/issues)**
+**[Download the Android 0.1.0-alpha.4 APK](https://github.com/AndyChen1024/magpie-mobile/releases)** · **[Build from source](#build-from-source)** · **[Project documentation](#project-documentation)** · **[Report an issue](https://github.com/AndyChen1024/magpie-mobile/issues)**
 
 </div>
 
@@ -20,7 +20,7 @@ Magpie Mobile is in early development. On Android 9 or later, install the previe
 
 | Platform | Available today |
 | --- | --- |
-| Android | Built with Kotlin and Jetpack Compose. View read-only usage over the local network, including request counts, tokens, known costs, and individual requests for today, the last 7 days, or the last 30 days. Demo data works offline. |
+| Android | Built with Kotlin and Jetpack Compose. View usage trends, agent and model rankings, costs, and request details for today, the last 7 days, or the last 30 days. Connect over HTTPS or use a paired Mac with the companion plugin. Demo data works offline. |
 | iOS | Built with SwiftUI. Open **More → Usage** to view the local gateway’s usage summary and individual requests, or try the offline demo. |
 
 ## Build from source
